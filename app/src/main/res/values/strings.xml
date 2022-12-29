@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">Kiro</string>
+    <string name="device">Perangkat</string>
+    <string name="time">Waktu</string>
+    <string name="date_and_time">Waktu &amp; Tanggal</string>
+    <string name="prayer_time">Waktu Adzan</string>
+    <string name="next">Selanjutnya</string>
+    <string name="ongoing">Sedang berlangsung</string>
+
+    <string name="fajr">Subuh</string>
+    <string name="dhuhr">Dzuhur</string>
+    <string name="asr">Ashar</string>
+    <string name="maghrib">Maghrib</string>
+    <string name="isha">Isya</string>
+
+    <string name="fajr_format">Subuh %1$s</string>
+    <string name="dhuhr_format">Dzuhur %1$s</string>
+    <string name="asr_format">Ashar %1$s</string>
+    <string name="maghrib_format">Maghrib %1$s</string>
+    <string name="isha_format">Isya %1$s</string>
+
+    <string name="minute_format">%1$d menit</string>
+    <string name="minutes_format">%1$d menit</string>
+    <string name="elevation_format">%1$d mdpl</string>
+
+    <string name="latitude_north">LU</string>
+    <string name="latitude_south">LS</string>
+    <string name="longitude_east">BT</string>
+    <string name="longitude_west">BB</string>
+
+    <string name="sunday">Minggu</string>
+    <string name="monday">Senin</string>
+    <string name="tuesday">Selasa</string>
+    <string name="wednesday">Rabu</string>
+    <string name="thursday">Kamis</string>
+    <string name="friday">Jumat</string>
+    <string name="saturday">Sabtu</string>
+
+    <string name="invalid_time">--:--</string>
+    <string name="inactive">Tidak aktif</string>
+    <string name="qiro">Qiro</string>
+    <string name="qiro_schedule">Jadwal Qiro</string>
+    <string name="setting">Pengaturan</string>
+
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connected">Terhubung</string>
+    <string name="disconnected">Tidak Terhubung</string>
+    <string name="date">Tanggal</string>
+    <string name="location">Lokasi</string>
+    <string name="latitude">Lintang</string>
+    <string name="longitude">Bujur</string>
+    <string name="about">Tentang</string>
+    <string name="security">Keamanan</string>
+    <string name="version">Versi</string>
+    <string name="elevation">Ketinggian</string>
+</resources>
