@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#212121</color>
+    <color name="background_secondary">#363636</color>
+    <color name="background_tertiary">#464646</color>
+    <color name="background_greenish">#273022</color>
+
+    <color name="text_primary">#FAFAFA</color>
+    <color name="text_default">#A5A5A5</color>
+
+    <color name="disabled">#BBBBBB</color>
+    <color name="line_color">#454545</color>
+</resources>
