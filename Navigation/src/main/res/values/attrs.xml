@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BottomNavigationItem">
+        <attr name="icon" format="reference" />
+        <attr name="iconSelected" format="reference" />
+        <attr name="label" format="string|reference" />
+    </declare-styleable>
+
+    <declare-styleable name="BottomNavigation">
+        <attr name="currentItem" format="integer" />
+        <attr name="color" format="color|reference" />
+        <attr name="colorSelected" format="color|reference" />
+        <attr name="iconMarginTop" format="dimension" />
+        <attr name="iconMarginBottom" format="dimension" />
+        <attr name="labelMarginTop" format="dimension" />
+        <attr name="labelMarginBottom" format="dimension" />
+        <attr name="fontFamily" />
+    </declare-styleable>
+</resources>
