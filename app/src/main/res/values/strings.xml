@@ -55,4 +55,12 @@
     <string name="version">Versi</string>
     <string name="elevation">Ketinggian</string>
     <string name="set_date_and_time">Atur Waktu dan Tanggal</string>
+    <string name="exit">Keluar</string>
+    <string name="continues">Lanjutkan</string>
+    <string name="not_now">Lain Kali</string>
+
+    <string name="loc_permission_rationale">Kiro membutuhkan akses lokasi untuk menemukan perangkat terdekat dengan mudah. Akses lokasi juga dibutuhkan untuk memilih koordinat pada peta.</string>
+    <string name="no_location_rationale">Kiro tidak dapat berjalan tanpa izin lokasi.</string>
+    <string name="permit">Izinkan</string>
+    <string name="masl">mdpl</string>
 </resources>
