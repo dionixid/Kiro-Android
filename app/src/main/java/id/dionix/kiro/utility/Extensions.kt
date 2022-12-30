@@ -1,10 +1,13 @@
 package id.dionix.kiro.utility
 
+import android.content.Context
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Rect
 import android.os.CountDownTimer
 import android.view.MotionEvent
 import android.view.View
+import id.dionix.kiro.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,6 +23,36 @@ val Float.dip: Int get() = this.dp.toInt()
 val Double.sp: Float get() = this.toFloat() * Resources.getSystem().displayMetrics.scaledDensity
 val Double.dp: Float get() = this.toFloat() * Resources.getSystem().displayMetrics.density
 val Double.dip: Int get() = this.dp.toInt()
+
+fun Int.elevation(context: Context): String {
+    return context.getString(R.string.elevation_format, this)
+}
+
+fun Double.latitudeDMS(context: Context): String {
+    return String.format(
+        "%d° %d' %d\" %s",
+        this.toInt(),
+        (mod(1.0) * 60).toInt(),
+        ((mod(1.0) * 60).mod(1.0) * 60).toInt(),
+        context.getString(
+            if (this >= 0) R.string.latitude_north
+            else R.string.latitude_south
+        )
+    ).replace("-", "")
+}
+
+fun Double.longitudeDMS(context: Context): String {
+    return String.format(
+        "%d° %d' %d\" %s",
+        this.toInt(),
+        (mod(1.0) * 60).toInt(),
+        ((mod(1.0) * 60).mod(1.0) * 60).toInt(),
+        context.getString(
+            if (this >= 0) R.string.longitude_east
+            else R.string.longitude_west
+        )
+    ).replace("-", "")
+}
 
 fun runMain(task: () -> Unit) {
     CoroutineScope(Dispatchers.Main).launch {
@@ -37,6 +70,10 @@ fun makeTimer(interval: Long, isContinuous: Boolean = false, callback: () -> Uni
             }
         }
     }
+}
+
+fun isDarkMode(context: Context): Boolean {
+    return context.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 }
 
 fun View.scaleOnClick(
