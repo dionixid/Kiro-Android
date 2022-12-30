@@ -10,168 +10,22 @@
     <com.google.android.gms.maps.MapView
         android:id="@+id/map_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:backgroundColor="@color/background" />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cv_elevation"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        app:cardBackgroundColor="@color/background_secondary"
-        app:cardCornerRadius="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/cv_my_location"
-        app:layout_constraintEnd_toEndOf="@+id/cardView5"
-        app:layout_constraintStart_toStartOf="@+id/cardView5">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
-                android:labelFor="@+id/et_elevation"
-                android:text="@string/elevation"
-                android:textColor="@color/text_default"
-                android:textSize="12dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.appcompat.widget.AppCompatEditText
-                android:id="@+id/et_elevation"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="8dp"
-                android:background="@color/transparent"
-                android:imeOptions="actionDone"
-                android:inputType="number"
-                android:textColor="@color/text_primary"
-                android:textSize="16dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/textView4"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView3"
-                tools:text="604" />
-
-            <TextView
-                android:id="@+id/textView4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="8dp"
-                android:background="@color/transparent"
-                android:text="@string/masl"
-                android:textColor="@color/text_default"
-                android:textSize="14dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/et_elevation" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView5"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        app:cardBackgroundColor="@color/background_secondary"
-        app:cardCornerRadius="8dp"
-        app:layout_constraintBottom_toBottomOf="@id/cv_my_location"
-        app:layout_constraintEnd_toStartOf="@id/cv_save"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/cv_my_location">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:labelFor="@+id/tv_latitude"
-                android:text="@string/latitude"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
-                android:textColor="@color/text_default"
-                android:textSize="12dp" />
-
-            <TextView
-                android:id="@+id/tv_latitude"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="4dp"
-                android:textColor="@color/text_primary"
-                android:textSize="16dp"
-                tools:text="-7.124315" />
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView2"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
-        app:cardBackgroundColor="@color/background_secondary"
-        app:cardCornerRadius="8dp"
-        app:layout_constraintBottom_toBottomOf="@id/cv_save"
-        app:layout_constraintEnd_toStartOf="@id/cv_save"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/cv_save">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
-                android:labelFor="@+id/tv_longitude"
-                android:text="@string/longitude"
-                android:textColor="@color/text_default"
-                android:textSize="12dp" />
-
-            <TextView
-                android:id="@+id/tv_longitude"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginBottom="4dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:textColor="@color/text_primary"
-                android:textSize="16dp"
-                tools:text="115.53421" />
-
-        </LinearLayout>
-
-    </androidx.cardview.widget.CardView>
+        android:layout_height="0dp"
+        android:layout_marginBottom="-16dp"
+        app:backgroundColor="@color/background"
+        app:layout_constraintBottom_toTopOf="@+id/cardView3"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_my_location"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="@color/background_secondary"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:cardBackgroundColor="@color/background"
         app:cardCornerRadius="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/cv_save"
-        app:layout_constraintEnd_toEndOf="@+id/cv_save">
+        app:layout_constraintBottom_toTopOf="@+id/cardView3"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="24dp"
@@ -183,22 +37,205 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cv_save"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        app:cardBackgroundColor="@color/background_secondary"
-        app:cardCornerRadius="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/map_view"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:id="@+id/cardView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/background"
+        android:layout_marginBottom="-16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_round_check"
-            android:tint="@color/primary" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:paddingTop="20dp">
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginBottom="4dp"
+                android:labelFor="@+id/et_elevation"
+                android:fontFamily="@font/dm_sans"
+                android:text="@string/elevation"
+                android:textColor="@color/text_default"
+                android:textSize="13dp"
+                app:layout_constraintBottom_toTopOf="@+id/cv_elevation"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_elevation"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/background_secondary"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toTopOf="@+id/textView5"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.AppCompatEditText
+                        android:id="@+id/et_elevation"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:background="@color/transparent"
+                        android:imeOptions="actionDone"
+                        android:inputType="number"
+                        android:paddingHorizontal="12dp"
+                        android:fontFamily="@font/dm_sans"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@+id/textView4"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="604" />
+
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="12dp"
+                        android:fontFamily="@font/dm_sans"
+                        android:background="@color/transparent"
+                        android:text="@string/masl"
+                        android:textColor="@color/text_default"
+                        android:textSize="14dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="@+id/et_elevation" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginBottom="4dp"
+                android:labelFor="@+id/tv_latitude"
+                android:text="@string/latitude"
+                android:fontFamily="@font/dm_sans"
+                android:textColor="@color/text_default"
+                android:textSize="13dp"
+                app:layout_constraintBottom_toTopOf="@+id/cardView5"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView5"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="@color/background_secondary"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="@+id/cardView2"
+                app:layout_constraintEnd_toStartOf="@+id/cardView2"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:id="@+id/tv_latitude"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@color/transparent"
+                    android:paddingHorizontal="12dp"
+                    android:textColor="@color/text_default"
+                    android:textSize="16dp"
+                    tools:text="-7.124315" />
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="4dp"
+                android:labelFor="@+id/tv_longitude"
+                android:text="@string/longitude"
+                android:fontFamily="@font/dm_sans"
+                android:textColor="@color/text_default"
+                android:textSize="13dp"
+                app:layout_constraintBottom_toTopOf="@+id/cardView2"
+                app:layout_constraintStart_toStartOf="@+id/cardView2" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView2"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="24dp"
+                android:layout_marginStart="8dp"
+                app:cardBackgroundColor="@color/background_secondary"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toTopOf="@+id/cv_save"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/cardView5">
+
+                <TextView
+                    android:id="@+id/tv_longitude"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/dm_sans"
+                    android:background="@color/transparent"
+                    android:textColor="@color/text_default"
+                    android:textSize="16dp"
+                    tools:text="115.53421" />
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_save"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="16dp"
+                android:layout_marginHorizontal="16dp"
+                app:cardBackgroundColor="@color/secondary"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:background="@drawable/ic_background">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/dm_sans_medium"
+                        android:text="@string/save"
+                        android:background="@color/transparent"
+                        android:textColor="@color/white"
+                        android:textSize="16dp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
 
