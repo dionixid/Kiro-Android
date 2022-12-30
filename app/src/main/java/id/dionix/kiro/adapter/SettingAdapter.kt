@@ -16,7 +16,6 @@ import id.dionix.kiro.databinding.ItemSettingTitleBinding
 import id.dionix.kiro.model.Device
 import id.dionix.kiro.model.Setting
 import id.dionix.kiro.model.SettingGroup
-import id.dionix.kiro.utility.ContentResolver
 import id.dionix.kiro.utility.dip
 import id.dionix.kiro.utility.scaleOnClick
 import java.time.LocalDate
@@ -395,10 +394,6 @@ class SettingAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return String.format("%02d:%02d", this / 3600, (this % 3600) / 60)
     }
 
-    private fun Int.elevation(context: Context): String {
-        return context.getString(R.string.elevation_format, this)
-    }
-
     private fun String.date(): String {
         return try {
             LocalDate
@@ -407,32 +402,6 @@ class SettingAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         } catch (_: Exception) {
             ""
         }
-    }
-
-    private fun Double.latitudeDMS(context: Context): String {
-        return String.format(
-            "%d° %d' %d\" %s",
-            this.toInt(),
-            (mod(1.0) * 60).toInt(),
-            ((mod(1.0) * 60).mod(1.0) * 60).toInt(),
-            context.getString(
-                if (this >= 0) R.string.latitude_north
-                else R.string.latitude_south
-            )
-        ).replace("-", "")
-    }
-
-    private fun Double.longitudeDMS(context: Context): String {
-        return String.format(
-            "%d° %d' %d\" %s",
-            this.toInt(),
-            (mod(1.0) * 60).toInt(),
-            ((mod(1.0) * 60).mod(1.0) * 60).toInt(),
-            context.getString(
-                if (this >= 0) R.string.longitude_east
-                else R.string.longitude_west
-            )
-        ).replace("-", "")
     }
 
     companion object {
