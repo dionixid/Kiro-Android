@@ -8,20 +8,17 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import id.dionix.kiro.R
-import id.dionix.kiro.databinding.ItemSettingActionBinding
-import id.dionix.kiro.databinding.ItemSettingContentBinding
-import id.dionix.kiro.databinding.ItemSettingFooterBinding
-import id.dionix.kiro.databinding.ItemSettingHeaderBinding
-import id.dionix.kiro.databinding.ItemSettingTitleBinding
+import id.dionix.kiro.databinding.*
 import id.dionix.kiro.model.Device
 import id.dionix.kiro.model.Setting
 import id.dionix.kiro.model.SettingGroup
-import id.dionix.kiro.utility.dip
-import id.dionix.kiro.utility.scaleOnClick
+import id.dionix.kiro.utility.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class SettingAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class SettingAdapter(
+    private val onItemSelected: (setting: Setting) -> Unit = {}
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val items: MutableList<Any> = mutableListOf(
         Device(),
@@ -199,30 +196,7 @@ class SettingAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
 
             mBinding.root.setOnClickListener {
-                when (setting.type) {
-                    Setting.Type.String,
-                    Setting.Type.Float,
-                    Setting.Type.Integer -> {
-                        // TODO Open dialog
-                    }
-                    Setting.Type.Time -> {
-                        // TODO Open dialog
-                    }
-                    Setting.Type.Date -> {
-                        // TODO Open dialog
-                    }
-                    Setting.Type.WiFi -> {
-                        // TODO Open dialog
-                    }
-                    Setting.Type.Latitude,
-                    Setting.Type.Longitude,
-                    Setting.Type.Elevation -> {
-                        // TODO Open dialog
-                    }
-                    else -> {
-                        // Do nothing
-                    }
-                }
+                onItemSelected(setting)
             }
         }
 
