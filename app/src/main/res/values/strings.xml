@@ -63,4 +63,5 @@
     <string name="no_location_rationale">Kiro tidak dapat berjalan tanpa izin lokasi.</string>
     <string name="permit">Izinkan</string>
     <string name="masl">mdpl</string>
+    <string name="save">Simpan</string>
 </resources>
