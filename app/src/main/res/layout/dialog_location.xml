@@ -17,6 +17,26 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView
+        android:id="@+id/cv_back"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        app:cardBackgroundColor="@color/background"
+        app:cardCornerRadius="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_round_arrow_back"
+            app:tint="@color/text_primary" />
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
         android:id="@+id/cv_my_location"
         android:layout_width="48dp"
         android:layout_height="48dp"
