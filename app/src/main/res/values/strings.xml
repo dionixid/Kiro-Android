@@ -63,4 +63,8 @@
     <string name="permit">Izinkan</string>
     <string name="masl">mdpl</string>
     <string name="save">Simpan</string>
+    <string name="use_system_time">Gunakan waktu sistem</string>
+    <string name="wifi">WiFi</string>
+    <string name="ssid">SSID</string>
+    <string name="password">Password</string>
 </resources>
