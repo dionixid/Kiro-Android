@@ -29,6 +29,7 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
 
     init {
         addView(rvPicker)
+        rvPicker.itemAnimator = null
         rvPicker.setHasFixedSize(true)
         rvPicker.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         rvPicker.layoutManager = LinearLayoutManager(
@@ -252,6 +253,7 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
                 snapHelper.attachToRecyclerView(rvNumber)
 
                 rvNumber.apply {
+                    itemAnimator = null
                     overScrollMode = RecyclerView.OVER_SCROLL_NEVER
                     setHasFixedSize(true)
 
