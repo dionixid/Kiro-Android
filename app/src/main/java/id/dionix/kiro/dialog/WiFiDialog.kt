@@ -118,13 +118,18 @@ class WiFiDialog(
         }
 
         mBinding.cvVisibility.scaleOnClick {
-            if (mBinding.etSsid.transformationMethod == Text.passwordTransformationMethod) {
-                mBinding.etSsid.transformationMethod = null
-                mBinding.ivVisibility.setImageResource(R.drawable.ic_round_visibility)
-            } else {
-                mBinding.etSsid.transformationMethod = Text.passwordTransformationMethod
+            val selectionStart = mBinding.etPassword.selectionStart
+            val selectionEnd = mBinding.etPassword.selectionEnd
+
+            if (mBinding.etPassword.transformationMethod == Text.passwordTransformationMethod) {
+                mBinding.etPassword.transformationMethod = null
                 mBinding.ivVisibility.setImageResource(R.drawable.ic_round_visibility_off)
+            } else {
+                mBinding.etPassword.transformationMethod = Text.passwordTransformationMethod
+                mBinding.ivVisibility.setImageResource(R.drawable.ic_round_visibility)
             }
+
+            mBinding.etPassword.setSelection(selectionStart, selectionEnd)
         }
 
 
@@ -148,6 +153,7 @@ class WiFiDialog(
 
         mBinding.etPassword.apply {
             setText(mPassword.value.toString())
+            transformationMethod = Text.passwordTransformationMethod
 
             setOnEditorActionListener { _, actionId, _ ->
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
