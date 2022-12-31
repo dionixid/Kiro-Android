@@ -34,7 +34,8 @@ class LocationDialog(
     latitude: Setting,
     longitude: Setting,
     elevation: Setting,
-    private val onDismiss: () -> Unit = {}
+    onSave: (latitude: Setting, longitude: Setting, elevation: Setting) -> Unit = { _, _, _ -> },
+    onDismiss: () -> Unit = {}
 ) : AppCompatDialogFragment(), OnMapReadyCallback {
 
     private lateinit var mBinding: DialogLocationBinding
@@ -44,6 +45,9 @@ class LocationDialog(
     private val mLatitude = latitude.copy()
     private val mLongitude = longitude.copy()
     private val mElevation = elevation.copy()
+
+    private val mOnSave = onSave
+    private val mOnDismiss = onDismiss
 
     private lateinit var mLocationProvider: FusedLocationProviderClient
 
@@ -82,7 +86,7 @@ class LocationDialog(
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        onDismiss()
+        mOnDismiss()
     }
 
     override fun dismiss() {
@@ -111,9 +115,9 @@ class LocationDialog(
                 }
             }
 
-            // This is a workaround for SoftInput covering edit text. For some reason,
+            // This is a workaround for 'SoftInput covering edit text' issue. For some reason,
             // the adjust pan mode does not move the editText up, although it seems that
-            // the map itself was panned vertically to top.
+            // the map itself was panned up vertically.
             mBinding.cvSave.apply {
                 val imeHeight = WindowInsetsCompat.toWindowInsetsCompat(insets)
                     .getInsets(WindowInsetsCompat.Type.ime()).bottom
@@ -128,6 +132,17 @@ class LocationDialog(
             }
 
             return@setOnApplyWindowInsetsListener insets
+        }
+
+        mBinding.cvBack.apply {
+            val insets = WindowInsetsCompat
+                .toWindowInsetsCompat(requireActivity().window.decorView.rootWindowInsets)
+                .getInsets(WindowInsetsCompat.Type.statusBars())
+
+            val params = (layoutParams as ViewGroup.MarginLayoutParams).apply {
+                topMargin = 16.dip + insets.top
+            }
+            layoutParams = params
         }
 
         dialog?.window?.decorView?.let {
@@ -171,7 +186,11 @@ class LocationDialog(
         }
 
         mBinding.cvSave.scaleOnClick {
-            // TODO Send Data to Server
+            mOnSave(mLatitude, mLongitude, mElevation)
+            dismiss()
+        }
+
+        mBinding.cvBack.scaleOnClick {
             dismiss()
         }
 
