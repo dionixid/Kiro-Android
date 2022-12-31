@@ -209,10 +209,15 @@ class SettingAdapter(
             mBinding.tvValue.apply {
                 text = when (setting.type) {
                     Setting.Type.Time -> {
-                        setting.value.toInt().secondsToTime()
+                        setting.value.toInt()
+                            .secondsToTime()
+                            .format("HH:mm")
                     }
                     Setting.Type.Date -> {
-                        setting.value.toString().date()
+                        setting.value.toString()
+                            .parseDate("dd-MM-yyyy")
+                            ?.format("dd MMMM yyyy")
+                            ?: ""
                     }
                     Setting.Type.Latitude -> {
                         setting.value.toDouble().latitudeDMS(context)
@@ -363,20 +368,6 @@ class SettingAdapter(
     data class Footer(
         var message: String = ""
     )
-
-    private fun Int.secondsToTime(): String {
-        return String.format("%02d:%02d", this / 3600, (this % 3600) / 60)
-    }
-
-    private fun String.date(): String {
-        return try {
-            LocalDate
-                .parse(this, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-                .format(DateTimeFormatter.ofPattern("dd MMMM yyyy"))
-        } catch (_: Exception) {
-            ""
-        }
-    }
 
     companion object {
         private const val TYPE_HEADER = 0
