@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 data class Qiro(
     var name: Prayer.Name = Prayer.Name.Fajr,
     var durationMinutes: Int = 0,
-    var surahId: Int = 0,
+    var surahIds: List<Int> = listOf(),
     var volume: Int = 0
 ): RObject() {
 
@@ -16,7 +16,7 @@ data class Qiro(
     }
 
     override val data: List<Value>
-        get() = listOf(Value(name.ordinal), Value(durationMinutes), Value(surahId), Value(volume))
+        get() = listOf(Value(name.ordinal), Value(durationMinutes), Value(surahIds), Value(volume))
 
     override fun assign(list: List<Value>) {
         if (list.size != 4) {
@@ -37,7 +37,7 @@ data class Qiro(
 
         name = Prayer.Name.values()[nameIndex]
         durationMinutes = list[1].toInt()
-        surahId = list[2].toInt()
+        surahIds = list[2].toList { it.toInt() }
         volume = list[3].toInt()
     }
 
