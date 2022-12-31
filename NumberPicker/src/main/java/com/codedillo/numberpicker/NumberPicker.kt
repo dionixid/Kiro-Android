@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -162,6 +161,8 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
             private var numberAdapter = NumberAdapter()
             private var scrolledByUser = false
 
+            private var currentNumberPosition = 0
+
             private var manager = object : LinearLayoutManager(context, VERTICAL, false) {
 
                 private fun updateAppearance(state: RecyclerView.State?) {
@@ -226,6 +227,10 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
                     super.scrollToPositionWithOffset(position, offset)
                     updateAppearance(null)
                 }
+
+                override fun supportsPredictiveItemAnimations(): Boolean {
+                    return false
+                }
             }
 
             private val decoration = object : RecyclerView.ItemDecoration() {
@@ -258,8 +263,6 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
                     setHasFixedSize(true)
 
                     addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-
                         override fun onScrollStateChanged(
                             recyclerView: RecyclerView,
                             newState: Int
@@ -270,8 +273,9 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
                                 }
                                 RecyclerView.SCROLL_STATE_IDLE -> {
                                     snapHelper.findSnapView(manager)?.let {
+                                        currentNumberPosition = manager.getPosition(it)
                                         numberSet.value.currentValue =
-                                            numberAdapter.getNumber(manager.getPosition(it))
+                                            numberAdapter.getNumber(currentNumberPosition)
                                         numberSet.value.onChanged(numberSet.value.currentValue, scrolledByUser)
                                     }
                                     scrolledByUser = false
@@ -334,7 +338,7 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
                     }
 
                     value.value.invalidateImpl = {
-                        numberAdapter.invalidate()
+                        numberAdapter.invalidate(currentNumberPosition)
                         setCurrentValue(value.value.currentValue, 1)
                     }
                 }
@@ -396,10 +400,24 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
                 field = value
             }
 
-        fun invalidate() {
+        fun invalidate(position: Int) {
+            val oldSize = numbers.size
             numbers.clear()
             for (i in 0 until numberSet.value.count) {
                 numbers.add(numberSet.value.min + i * numberSet.value.interval)
+            }
+
+            if (numberSet.isEndlessModeEnabled) {
+                notifyItemRangeChanged(position - 10, 20, position)
+            } else {
+                val start = if (position > 10) position - 10 else 0
+                val count = if (oldSize - start > 20) 20 else oldSize - start
+
+                notifyItemRangeChanged(
+                    start,
+                    count,
+                    position
+                )
             }
         }
 
