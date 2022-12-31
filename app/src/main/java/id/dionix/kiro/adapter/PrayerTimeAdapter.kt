@@ -22,7 +22,7 @@ class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         PrayerQiro(Prayer.Name.Isha)
     )
 
-    var isRunning: Boolean = false
+    var qiroAudio: QiroAudio = QiroAudio()
         set(value) {
             field = value
             notifyItemChanged(0, value)
@@ -105,7 +105,7 @@ class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 field = value
 
                 mBinding.tvTitle.text = context.getString(
-                    if (isRunning) R.string.ongoing
+                    if (qiroAudio.isPlaying) R.string.ongoing
                     else R.string.next
                 )
 
