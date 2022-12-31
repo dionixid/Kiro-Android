@@ -8,10 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import id.dionix.kiro.R
 import id.dionix.kiro.databinding.ItemPrayerTimeActiveBinding
 import id.dionix.kiro.databinding.ItemPrayerTimeBinding
-import id.dionix.kiro.model.Prayer
-import id.dionix.kiro.model.PrayerGroup
-import id.dionix.kiro.model.Qiro
-import id.dionix.kiro.model.QiroGroup
+import id.dionix.kiro.model.*
 import id.dionix.kiro.utility.scaleOnClick
 
 class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
