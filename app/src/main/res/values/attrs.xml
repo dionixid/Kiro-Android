@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CheckBox">
+        <attr name="checked" format="boolean" />
+        <attr name="description" format="string|reference" />
+        <attr name="checkedTint" format="color|reference" />
+        <attr name="uncheckedTint" format="color|reference" />
+        <attr name="textColor" format="color|reference" />
+        <attr name="disabled" format="boolean" />
+    </declare-styleable>
+
+</resources>
