@@ -4,14 +4,12 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatDialog
 import androidx.appcompat.app.AppCompatDialogFragment
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.codedillo.rttp.model.Value
 import com.google.android.gms.location.FusedLocationProviderClient
