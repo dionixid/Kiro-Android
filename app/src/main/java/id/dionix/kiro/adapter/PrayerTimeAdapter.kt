@@ -31,7 +31,7 @@ class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             notifyItemChanged(0, value)
         }
 
-    fun setPrayer(prayerGroup: PrayerGroup) {
+    fun setPrayerGroup(prayerGroup: PrayerGroup) {
         items[1].prayer = prayerGroup.fajr
         items[2].prayer = prayerGroup.dhuhr
         items[3].prayer = prayerGroup.asr
@@ -40,7 +40,7 @@ class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyItemRangeChanged(1, items.size, prayerGroup)
     }
 
-    fun setQiro(qiroGroup: QiroGroup) {
+    fun setQiroGroup(qiroGroup: QiroGroup) {
         items[1].qiro = qiroGroup.fajr
         items[2].qiro = qiroGroup.dhuhr
         items[3].qiro = qiroGroup.asr
