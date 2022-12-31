@@ -49,13 +49,13 @@ class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         notifyItemRangeChanged(1, items.size, qiroGroup)
     }
 
-    fun setNextPrayer(prayer: Prayer) {
+    fun setOngoingPrayer(prayer: Prayer) {
         items[0].prayer = prayer
         notifyItemChanged(0, prayer)
     }
 
-    fun setNextQiro(qiro: Qiro) {
-        items[1].qiro = qiro
+    fun setOngoingQiro(qiro: Qiro) {
+        items[0].qiro = qiro
         notifyItemChanged(0, qiro)
     }
 
