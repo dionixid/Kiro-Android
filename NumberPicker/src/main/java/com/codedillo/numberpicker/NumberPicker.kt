@@ -5,6 +5,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -144,7 +145,7 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
                 set(value) {
                     field = value
                     tvSeparator?.apply {
-                        textSize = value.size
+                        setTextSize(TypedValue.COMPLEX_UNIT_PX, value.size)
                         setTextColor(value.color)
                         typeface = value.typeface
                     }
@@ -450,7 +451,7 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
             var textSize: Float? = null
                 set(value) {
                     if (field != value && value != null) {
-                        tvValue.textSize = value
+                        tvValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, value)
                         field = value
                     }
                 }
