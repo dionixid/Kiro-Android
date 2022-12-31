@@ -1,6 +1,5 @@
 package id.dionix.kiro.adapter
 
-import android.content.Context
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
@@ -13,8 +12,6 @@ import id.dionix.kiro.model.Device
 import id.dionix.kiro.model.Setting
 import id.dionix.kiro.model.SettingGroup
 import id.dionix.kiro.utility.*
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class SettingAdapter(
     private val onItemSelected: (setting: Setting) -> Unit = {}
