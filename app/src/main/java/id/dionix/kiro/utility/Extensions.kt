@@ -11,6 +11,9 @@ import id.dionix.kiro.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 val Int.sp: Float get() = this * Resources.getSystem().displayMetrics.scaledDensity
 val Int.dp: Float get() = this * Resources.getSystem().displayMetrics.density
@@ -52,6 +55,27 @@ fun Double.longitudeDMS(context: Context): String {
             else R.string.longitude_west
         )
     ).replace("-", "")
+}
+
+fun Int.secondsToTime(): LocalTime {
+    return LocalTime.ofSecondOfDay(this.toLong())
+}
+
+fun LocalTime.format(pattern: String): String {
+    return format(DateTimeFormatter.ofPattern(pattern))
+}
+
+fun String.parseDate(pattern: String): LocalDate? {
+    return try {
+        LocalDate
+            .parse(this, DateTimeFormatter.ofPattern(pattern))
+    } catch (_: Exception) {
+        null
+    }
+}
+
+fun LocalDate.format(pattern: String): String {
+    return format(DateTimeFormatter.ofPattern(pattern))
 }
 
 fun runMain(task: () -> Unit) {
