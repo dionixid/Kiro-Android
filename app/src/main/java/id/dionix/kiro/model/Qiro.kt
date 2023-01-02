@@ -15,6 +15,15 @@ data class Qiro(
         return prayer.getCalculatedTime().minusMinutes(durationMinutes.toLong()).format(formatter)
     }
 
+    fun deepCopy(
+        name: Prayer.Name = this.name,
+        durationMinutes: Int = this.durationMinutes,
+        surahIds: List<Int> = this.surahIds.map { it },
+        volume: Int = this.volume
+    ): Qiro {
+        return Qiro(name, durationMinutes, surahIds, volume)
+    }
+
     override val data: List<Value>
         get() = listOf(Value(name.ordinal), Value(durationMinutes), Value(surahIds), Value(volume))
 
