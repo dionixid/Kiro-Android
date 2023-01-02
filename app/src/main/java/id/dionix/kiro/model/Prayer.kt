@@ -52,7 +52,7 @@ data class Prayer(
     }
 
     override val data: List<Value>
-        get() = listOf(Value(name.ordinal), Value(time.toSecondOfDay() / 60), Value(offset))
+        get() = listOf(Value(name.ordinal), Value(time.toSecondOfDay()), Value(offset))
 
     override fun assign(list: List<Value>) {
         if (list.size != 3) {
@@ -72,7 +72,7 @@ data class Prayer(
         }
 
         name = Name.values()[nameIndex]
-        time = LocalTime.ofSecondOfDay(list[1].toLong() * 60L)
+        time = LocalTime.ofSecondOfDay(list[1].toLong())
         offset = list[2].toInt()
     }
 
