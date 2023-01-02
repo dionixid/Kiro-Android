@@ -4,6 +4,7 @@ import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 
         mBinding.bottomNavigation.setOnItemSelectedListener {
             mBinding.viewPager.setCurrentItem(it, false)
+            mBackPressedCallback.isEnabled = it != 0
         }
 
         fun openNoLocationDialog() {
@@ -47,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
         mLocationPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (!isGranted)  {
+                if (!isGranted) {
                     openNoLocationDialog()
                 }
             }
@@ -83,6 +85,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        onBackPressedDispatcher.addCallback(mBackPressedCallback)
+    }
+
+    private val mBackPressedCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            mBinding.bottomNavigation.currentItem = 0
+        }
     }
 
 }
