@@ -5,8 +5,10 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Rect
 import android.os.CountDownTimer
+import android.os.IBinder
 import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import id.dionix.kiro.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -100,6 +102,18 @@ fun isDarkMode(context: Context): Boolean {
     return context.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 }
 
+fun Context.hideKeyboard(windowToken: IBinder?) {
+    windowToken?.let {
+        getSystemService(InputMethodManager::class.java)?.hideSoftInputFromWindow(it, 0)
+    }
+}
+
+fun Context.showKeyboard(view: View?) {
+    view?.let {
+        getSystemService(InputMethodManager::class.java)?.showSoftInput(it, 0)
+    }
+}
+
 fun View.scaleOnClick(
     scaleOnDown: Float = 0.95f,
     scaleOnUp: Float = 1f,
@@ -116,7 +130,7 @@ fun View.scaleOnClick(
         if (onPreClick(this)) {
             return@setOnTouchListener false
         }
-        when (event.action) {
+        when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 v.animate().setDuration(durationOnDown).scaleX(scaleOnDown)
                 v.animate().setDuration(durationOnDown).scaleY(scaleOnDown)
