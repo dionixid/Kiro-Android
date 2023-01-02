@@ -22,6 +22,17 @@ data class QiroGroup(
         }
     }
 
+    fun deepCopy(
+        dayOfWeek: Int = this.dayOfWeek,
+        fajr: Qiro = this.fajr.deepCopy(),
+        dhuhr: Qiro = this.dhuhr.deepCopy(),
+        asr: Qiro = this.asr.deepCopy(),
+        maghrib: Qiro = this.maghrib.deepCopy(),
+        isha: Qiro = this.isha.deepCopy()
+    ): QiroGroup {
+        return QiroGroup(dayOfWeek, fajr, dhuhr, asr, maghrib, isha)
+    }
+
     override val data: List<Value>
         get() = listOf(
             Value(dayOfWeek),
