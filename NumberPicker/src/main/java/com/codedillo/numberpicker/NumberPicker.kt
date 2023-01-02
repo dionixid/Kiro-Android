@@ -448,6 +448,7 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            holder.itemView.alpha = 0f
             holder.value = numbers[position % size]
             holder.textSize = numberSet.value.appearance.size
             holder.textColor = numberSet.value.appearance.color
