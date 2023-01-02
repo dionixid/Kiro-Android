@@ -20,7 +20,9 @@
     <string name="isha_format">Isya %1$s</string>
 
     <string name="minute_format">%1$d menit</string>
+    <string name="positive_minute_format">+%1$d menit</string>
     <string name="minutes_format">%1$d menit</string>
+    <string name="positive_minutes_format">+%1$d menit</string>
     <string name="elevation_format">%1$d mdpl</string>
 
     <string name="latitude_north">LU</string>
