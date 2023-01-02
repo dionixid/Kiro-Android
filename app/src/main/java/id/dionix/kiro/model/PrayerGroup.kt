@@ -21,6 +21,16 @@ data class PrayerGroup(
         }
     }
 
+    fun deepCopy(
+        fajr: Prayer = this.fajr.deepCopy(),
+        dhuhr: Prayer = this.dhuhr.deepCopy(),
+        asr: Prayer = this.asr.deepCopy(),
+        maghrib: Prayer = this.maghrib.deepCopy(),
+        isha: Prayer = this.isha.deepCopy()
+    ): PrayerGroup {
+        return PrayerGroup(fajr, dhuhr, asr, maghrib, isha)
+    }
+
     override val data: List<Value>
         get() = listOf(Value(fajr), Value(dhuhr), Value(asr), Value(maghrib), Value(isha))
 
