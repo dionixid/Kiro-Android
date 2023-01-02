@@ -67,4 +67,9 @@
     <string name="wifi">WiFi</string>
     <string name="ssid">SSID</string>
     <string name="password">Password</string>
+    <string name="duration">Durasi</string>
+    <string name="playlist">Daftar Putar</string>
+    <string name="choose_audio">Pilih Audio</string>
+    <string name="search">Cari...</string>
+    <string name="last_result">Pencarian terakhir</string>
 </resources>
