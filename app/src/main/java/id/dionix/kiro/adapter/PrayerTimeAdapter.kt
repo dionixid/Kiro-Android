@@ -11,16 +11,12 @@ import id.dionix.kiro.databinding.ItemPrayerTimeBinding
 import id.dionix.kiro.model.*
 import id.dionix.kiro.utility.scaleOnClick
 
-class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class PrayerTimeAdapter(
+    onItemSelected: (prayerTimeOffset: PrayerTimeOffset) -> Unit = {}
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items = listOf(
-        PrayerQiro(Prayer.Name.Fajr),
-        PrayerQiro(Prayer.Name.Fajr),
-        PrayerQiro(Prayer.Name.Dhuhr),
-        PrayerQiro(Prayer.Name.Asr),
-        PrayerQiro(Prayer.Name.Maghrib),
-        PrayerQiro(Prayer.Name.Isha)
-    )
+    private val mOnItemSelected = onItemSelected
+    private val mGroup = PrayerQiroGroup()
 
     var qiroAudio: QiroAudio = QiroAudio()
         set(value) {
@@ -29,30 +25,22 @@ class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         }
 
     fun setPrayerGroup(prayerGroup: PrayerGroup) {
-        items[1].prayer = prayerGroup.fajr
-        items[2].prayer = prayerGroup.dhuhr
-        items[3].prayer = prayerGroup.asr
-        items[4].prayer = prayerGroup.maghrib
-        items[5].prayer = prayerGroup.isha
-        notifyItemRangeChanged(1, items.size, prayerGroup)
+        mGroup.setPrayerGroup(prayerGroup)
+        notifyItemRangeChanged(1, 5, prayerGroup)
     }
 
     fun setQiroGroup(qiroGroup: QiroGroup) {
-        items[1].qiro = qiroGroup.fajr
-        items[2].qiro = qiroGroup.dhuhr
-        items[3].qiro = qiroGroup.asr
-        items[4].qiro = qiroGroup.maghrib
-        items[5].qiro = qiroGroup.isha
-        notifyItemRangeChanged(1, items.size, qiroGroup)
+        mGroup.setQiroGroup(qiroGroup)
+        notifyItemRangeChanged(1, 5, qiroGroup)
     }
 
     fun setOngoingPrayer(prayer: Prayer) {
-        items[0].prayer = prayer
+        mGroup.setOngoingPrayer(prayer)
         notifyItemChanged(0, prayer)
     }
 
     fun setOngoingQiro(qiro: Qiro) {
-        items[0].qiro = qiro
+        mGroup.setOngoingQiro(qiro)
         notifyItemChanged(0, qiro)
     }
 
@@ -78,16 +66,23 @@ class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is PrayerActiveViewHolder -> {
-                holder.prayerQiro = items[position]
+                holder.prayerQiro = mGroup.ongoing
             }
             is PrayerViewHolder -> {
-                holder.prayerQiro = items[position]
+                holder.prayerQiro = when (position) {
+                    0 -> mGroup.fajr
+                    1 -> mGroup.dhuhr
+                    2 -> mGroup.asr
+                    3 -> mGroup.maghrib
+                    4 -> mGroup.isha
+                    else -> PrayerQiro()
+                }
             }
         }
     }
 
     override fun getItemCount(): Int {
-        return items.size
+        return 6
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -176,7 +171,7 @@ class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         init {
             mBinding.root.scaleOnClick {
-                // TODO open configuration dialog
+                mOnItemSelected(mGroup.toPrayerTimeOffset())
             }
         }
 
@@ -255,6 +250,50 @@ class PrayerTimeAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             qiro.name = name
         }
 
+    }
+
+    private data class PrayerQiroGroup(
+        var ongoing: PrayerQiro = PrayerQiro(Prayer.Name.Fajr),
+        var fajr: PrayerQiro = PrayerQiro(Prayer.Name.Fajr),
+        var dhuhr: PrayerQiro = PrayerQiro(Prayer.Name.Dhuhr),
+        var asr: PrayerQiro = PrayerQiro(Prayer.Name.Asr),
+        var maghrib: PrayerQiro = PrayerQiro(Prayer.Name.Maghrib),
+        var isha: PrayerQiro = PrayerQiro(Prayer.Name.Isha)
+    ) {
+
+        fun setPrayerGroup(prayerGroup: PrayerGroup) {
+            fajr.prayer = prayerGroup.fajr.copy()
+            dhuhr.prayer = prayerGroup.dhuhr.copy()
+            asr.prayer = prayerGroup.asr.copy()
+            maghrib.prayer = prayerGroup.maghrib.copy()
+            isha.prayer = prayerGroup.isha.copy()
+        }
+
+        fun setQiroGroup(qiroGroup: QiroGroup) {
+            fajr.qiro = qiroGroup.fajr.deepCopy()
+            dhuhr.qiro = qiroGroup.dhuhr.deepCopy()
+            asr.qiro = qiroGroup.asr.deepCopy()
+            maghrib.qiro = qiroGroup.maghrib.deepCopy()
+            isha.qiro = qiroGroup.isha.deepCopy()
+        }
+
+        fun setOngoingPrayer(prayer: Prayer) {
+            ongoing.prayer = prayer.copy()
+        }
+
+        fun setOngoingQiro(qiro: Qiro) {
+            ongoing.qiro = qiro.deepCopy()
+        }
+
+        fun toPrayerTimeOffset() : PrayerTimeOffset {
+            return PrayerTimeOffset(
+                fajr.prayer.offset,
+                dhuhr.prayer.offset,
+                asr.prayer.offset,
+                maghrib.prayer.offset,
+                isha.prayer.offset
+            )
+        }
     }
 
 }
