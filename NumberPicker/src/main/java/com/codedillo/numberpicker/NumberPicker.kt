@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -282,6 +283,22 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
                                 }
                             }
                         }
+                    })
+
+                    addOnItemTouchListener(object: RecyclerView.OnItemTouchListener {
+                        override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
+                        override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {}
+
+                        override fun onInterceptTouchEvent(
+                            rv: RecyclerView,
+                            e: MotionEvent
+                        ): Boolean {
+                            if (e.actionMasked == MotionEvent.ACTION_MOVE) {
+                                parent.requestDisallowInterceptTouchEvent(true)
+                            }
+                            return false
+                        }
+
                     })
 
                     layoutManager = manager
