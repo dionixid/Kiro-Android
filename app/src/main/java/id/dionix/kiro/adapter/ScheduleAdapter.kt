@@ -8,32 +8,33 @@ import id.dionix.kiro.R
 import id.dionix.kiro.databinding.ItemScheduleBinding
 import id.dionix.kiro.model.Prayer
 import id.dionix.kiro.model.QiroGroup
+import id.dionix.kiro.utility.scaleOnClick
 
-class ScheduleAdapter : RecyclerView.Adapter<ScheduleAdapter.ViewHolder>() {
+class ScheduleAdapter(
+    onItemSelected: (prayerName: Prayer.Name, qiroGroup: QiroGroup) -> Unit = { _, _ -> }
+) : RecyclerView.Adapter<ScheduleAdapter.ViewHolder>() {
 
-    private var items = listOf(
-        QiroGroup(),
-        QiroGroup(),
-        QiroGroup(),
-        QiroGroup(),
-        QiroGroup(),
-        QiroGroup(),
-        QiroGroup()
-    )
+    private val mOnItemSelected = onItemSelected
 
-    var currentPrayer: Prayer.Name = Prayer.Name.Fajr
+    private var mItems: MutableList<QiroGroup> = mutableListOf()
+
+    var currentPrayerName: Prayer.Name = Prayer.Name.Fajr
         set(value) {
             field = value
-            notifyItemRangeChanged(0, items.size, value)
+            notifyItemRangeChanged(0, mItems.size, value)
         }
 
-    fun setQiroGroupList(qiroGroups: List<QiroGroup>) {
-        if (qiroGroups.size != items.size) {
-            return
-        }
+    fun setQiroGroups(qiroGroups: List<QiroGroup>) {
+        mItems = qiroGroups.map { it.copy() }.sortedBy { it.dayOfWeek }.toMutableList()
+        notifyItemRangeChanged(0, mItems.size, qiroGroups)
+    }
 
-        items = qiroGroups.map { it.copy() }
-        notifyItemRangeChanged(0, items.size, qiroGroups)
+    fun setQiroGroup(qiroGroup: QiroGroup) {
+        val position = mItems.indexOfFirst { it.dayOfWeek == qiroGroup.dayOfWeek }
+        if (position != -1) {
+            mItems[position] = qiroGroup.copy()
+            notifyItemChanged(position, qiroGroup)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -47,25 +48,31 @@ class ScheduleAdapter : RecyclerView.Adapter<ScheduleAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.qiroGroup = items[position]
+        holder.qiroGroup = mItems[position]
     }
 
     override fun getItemCount(): Int {
-        return items.size
+        return mItems.size
     }
 
     inner class ViewHolder(
         private val mBinding: ItemScheduleBinding,
     ) : RecyclerView.ViewHolder(mBinding.root) {
 
+        init {
+            mBinding.root.scaleOnClick {
+                mOnItemSelected(currentPrayerName, qiroGroup.copy())
+            }
+        }
+
         var qiroGroup: QiroGroup = QiroGroup()
             set(value) {
                 field = value
-                val qiro = value.getQiro(currentPrayer)
+                val qiro = value.getQiro(currentPrayerName)
 
                 mBinding.tvTitle.apply {
                     text = context.getString(
-                        when (adapterPosition) {
+                        when (value.dayOfWeek) {
                             0 -> R.string.sunday
                             1 -> R.string.monday
                             2 -> R.string.tuesday
