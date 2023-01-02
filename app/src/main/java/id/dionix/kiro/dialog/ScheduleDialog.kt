@@ -196,7 +196,7 @@ class ScheduleDialog(
                     state: RecyclerView.State
                 ) {
                     if (parent.getChildAdapterPosition(view) == state.itemCount - 1) {
-                        outRect.bottom = 36.dip
+                        outRect.bottom = 42.dip
                     } else {
                         outRect.bottom = 0
                     }
