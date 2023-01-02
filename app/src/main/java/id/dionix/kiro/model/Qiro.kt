@@ -52,5 +52,15 @@ data class Qiro(
 
     companion object {
         private val formatter = DateTimeFormatter.ofPattern("HH:mm")
+
+        fun getMaximumDuration(name: Prayer.Name): Int {
+            return when (name) {
+                Prayer.Name.Fajr -> 120
+                Prayer.Name.Dhuhr -> 120
+                Prayer.Name.Asr -> 60
+                Prayer.Name.Maghrib -> 60
+                Prayer.Name.Isha -> 30
+            }
+        }
     }
 }
