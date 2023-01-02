@@ -43,6 +43,14 @@ data class Prayer(
         }
     }
 
+    fun deepCopy(
+        name: Name = this.name,
+        time: LocalTime = this.time.withSecond(this.time.second),
+        offset: Int = this.offset
+    ): Prayer {
+        return Prayer(name, time, offset)
+    }
+
     override val data: List<Value>
         get() = listOf(Value(name.ordinal), Value(time.toSecondOfDay() / 60), Value(offset))
 
