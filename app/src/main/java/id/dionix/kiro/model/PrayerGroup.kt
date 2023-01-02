@@ -20,6 +20,16 @@ data class PrayerGroup(
             Prayer.Name.Isha -> isha
         }
     }
+    
+    fun toPrayerTimeOffset(): PrayerTimeOffset {
+        return PrayerTimeOffset(
+            fajr.offset,
+            dhuhr.offset,
+            asr.offset,
+            maghrib.offset,
+            isha.offset
+        )
+    }
 
     fun deepCopy(
         fajr: Prayer = this.fajr.deepCopy(),
