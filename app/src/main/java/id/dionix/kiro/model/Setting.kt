@@ -34,7 +34,7 @@ data class Setting(
     }
 
     override val data: List<Value>
-        get() = listOf(Value(id), Value(type.ordinal), Value(label), value)
+        get() = listOf(Value(id), Value(type.ordinal), Value(label), value, Value(isConfidential))
 
     override fun assign(list: List<Value>) {
         if (list.size != 5) {
