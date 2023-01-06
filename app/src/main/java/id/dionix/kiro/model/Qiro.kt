@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 data class Qiro(
     var name: Prayer.Name = Prayer.Name.Fajr,
     var durationMinutes: Int = 0,
-    var surahIds: List<Int> = listOf(),
+    var surahList: List<Surah> = listOf(),
     var volume: Int = 0
 ): RObject() {
 
@@ -18,14 +18,14 @@ data class Qiro(
     fun deepCopy(
         name: Prayer.Name = this.name,
         durationMinutes: Int = this.durationMinutes,
-        surahIds: List<Int> = this.surahIds.map { it },
+        surahList: List<Surah> = this.surahList.map { it.copy() },
         volume: Int = this.volume
     ): Qiro {
-        return Qiro(name, durationMinutes, surahIds, volume)
+        return Qiro(name, durationMinutes, surahList, volume)
     }
 
     override val data: List<Value>
-        get() = listOf(Value(name.ordinal), Value(durationMinutes), Value(surahIds), Value(volume))
+        get() = listOf(Value(name.ordinal), Value(durationMinutes), Value(surahList), Value(volume))
 
     override fun assign(list: List<Value>) {
         if (list.size != 4) {
@@ -46,7 +46,7 @@ data class Qiro(
 
         name = Prayer.Name.values()[nameIndex]
         durationMinutes = list[1].toInt()
-        surahIds = list[2].toList { it.toInt() }
+        surahList = list[2].toList { it.toObject { Surah() } }
         volume = list[3].toInt()
     }
 
