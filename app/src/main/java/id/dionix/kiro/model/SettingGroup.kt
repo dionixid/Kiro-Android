@@ -8,6 +8,28 @@ data class SettingGroup(
     var settings: List<Setting> = listOf()
 ): RObject() {
 
+    fun setSetting(setting: Setting) {
+        val oldSettings = settings.toMutableList()
+        val idx = oldSettings.indexOfFirst { it.id == setting.id }
+
+        if (idx != -1) {
+            oldSettings[idx] = setting
+            settings = oldSettings
+        }
+    }
+
+    fun getSetting(id: String) : Setting? {
+        return settings.find { it.id == id }
+    }
+
+    fun getSetting(type: Setting.Type) : Setting? {
+        return settings.find { it.type == type }
+    }
+
+    fun contains(type: Setting.Type) : Boolean {
+        return settings.indexOfFirst { it.type == type } != -1
+    }
+
     override val data: List<Value>
         get() = listOf(Value(name), Value(settings))
 
