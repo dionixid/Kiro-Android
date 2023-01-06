@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="400dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="center"
+    app:cardBackgroundColor="@color/background"
+    app:cardCornerRadius="16dp"
+    tools:ignore="SpUsage">
+
+    <LinearLayout
+        android:id="@+id/ll_device"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:background="@drawable/ic_background">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:src="@drawable/ic_baseline_developer_board"
+                android:tint="@color/white" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/signika"
+                android:text="@string/available_devices"
+                android:textColor="@color/white"
+                android:layout_marginStart="12dp"
+                android:textSize="16dp" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_refresh"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:cardElevation="0dp"
+                android:layout_marginEnd="4dp"
+                app:cardBackgroundColor="@color/transparent"
+                app:cardCornerRadius="0dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_refresh"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_round_refresh"
+                    android:layout_gravity="center"
+                    app:tint="@color/white" />
+
+                <ProgressBar
+                    android:id="@+id/pb_refresh"
+                    style="?android:progressBarStyleSmall"
+                    android:layout_gravity="center"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:indeterminate="true"
+                    android:visibility="gone"
+                    android:indeterminateTint="@color/white" />
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_no_device"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/ic_round_devices_other"
+                android:tint="@color/text_default"
+                android:alpha="0.2"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/dm_sans"
+                android:text="@string/no_devices_found"
+                android:textColor="@color/text_default"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_device"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_device"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_connection"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:background="@drawable/ic_background">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="16dp"
+                android:src="@drawable/ic_round_connect_without_contact"
+                android:tint="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:fontFamily="@font/dm_sans"
+                android:text="@string/connect_device"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tl_connection"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="@color/transparent"
+            app:tabBackground="@color/transparent"
+            app:tabIndicatorColor="@color/yellow"
+            app:tabSelectedTextColor="@color/yellow"
+            app:tabTextAppearance="@style/TabTextAppearance"
+            app:tabIndicatorFullWidth="false"
+            app:tabMaxWidth="300dp"
+            app:tabTextColor="@color/white" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vp_connection"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
