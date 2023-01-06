@@ -14,22 +14,25 @@ import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayoutManager
 import id.dionix.kiro.R
 import id.dionix.kiro.adapter.AudioPickerAdapter
 import id.dionix.kiro.adapter.SearchResultAdapter
+import id.dionix.kiro.database.DataViewModel
+import id.dionix.kiro.database.SurahViewModel
 import id.dionix.kiro.databinding.DialogAudioPickerBinding
-import id.dionix.kiro.model.Surah
+import id.dionix.kiro.model.SurahAudio
+import id.dionix.kiro.model.SurahProperties
 import id.dionix.kiro.utility.dip
 import id.dionix.kiro.utility.dp
 import id.dionix.kiro.utility.hideKeyboard
 import id.dionix.kiro.utility.scaleOnClick
-import kotlin.random.Random
 
 class AudioPickerDialog(
-    onItemSelected: (surah: Surah) -> Unit = {},
+    onItemSelected: (surahProps: SurahProperties) -> Unit = {},
     onDismiss: () -> Unit = {}
 ) : AppCompatDialogFragment() {
 
@@ -37,6 +40,11 @@ class AudioPickerDialog(
     private val mOnDismiss = onDismiss
 
     private lateinit var mBinding: DialogAudioPickerBinding
+
+    private var mIsOpenDialog = false
+
+    private val mSurahViewModel by activityViewModels<SurahViewModel>()
+    private val mDataViewModel by activityViewModels<DataViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +82,7 @@ class AudioPickerDialog(
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         mOnDismiss()
+        mSurahViewModel.filter("")
     }
 
     override fun dismiss() {
@@ -127,17 +136,47 @@ class AudioPickerDialog(
             return@setOnApplyWindowInsetsListener insets
         }
 
-        val searchAdapter = SearchResultAdapter {
-            mOnItemSelected(it)
-            dismiss()
-        }.apply {
-            setSurahList(
-                buildList {
-                    for (i in 1..10) {
-                        add(Surah(i, "Surah $i", Random.nextInt(5, 7200)))
+        fun openAudioPreviewDialog(surahProps: SurahProperties) {
+            if (!mIsOpenDialog) {
+                mIsOpenDialog = true
+                AudioPreviewDialog(
+                    surahProps.name,
+                    requireContext().getString(R.string.choose),
+                    SurahAudio(
+                        surahProps.id,
+                        surahProps.volume,
+                        isPaused = false,
+                        isPlaying = false
+                    ),
+                    onApply = { audio ->
+                        mOnItemSelected(surahProps.copy(volume = audio.volume))
+                        mDataViewModel.addSurahSearchResult(surahProps)
+                        dismiss()
+                    },
+                    onDismiss = {
+                        mIsOpenDialog = false
+                    }
+                ).show(requireActivity().supportFragmentManager, "dialog_audio_preview")
+            }
+        }
+
+        val searchAdapter = SearchResultAdapter(::openAudioPreviewDialog)
+
+        mDataViewModel.lastSurahSearch.observe(viewLifecycleOwner) {
+            searchAdapter.setSurahList(it)
+
+            mBinding.tvLastSearchTitle.visibility = if (it.isEmpty()) View.GONE else View.VISIBLE
+            mBinding.rvLastResult.visibility = if (it.isEmpty()) View.GONE else View.VISIBLE
+
+            mBinding.rvLastResult.apply {
+                post {
+                    mBinding.marginSlider.maxMargin = if (it.isNotEmpty()) {
+                        -(measuredHeight + mBinding.tvLastSearchTitle.measuredHeight + 8.dip)
+                    } else {
+                        16.dip
                     }
                 }
-            )
+            }
         }
 
         mBinding.rvLastResult.apply {
@@ -145,7 +184,7 @@ class AudioPickerDialog(
             layoutManager = FlexboxLayoutManager(requireContext())
 
             post {
-                mBinding.marginSlider.maxMargin = if (measuredWidth > 0 ) {
+                mBinding.marginSlider.maxMargin = if (measuredWidth > 0) {
                     -(measuredHeight + mBinding.tvLastSearchTitle.measuredHeight + 8.dip)
                 } else {
                     16.dip
@@ -153,17 +192,10 @@ class AudioPickerDialog(
             }
         }
 
-        val audioAdapter = AudioPickerAdapter {
-            mOnItemSelected(it)
-            dismiss()
-        }.apply {
-            setSurahList(
-                buildList {
-                    for (i in 1..100) {
-                        add(Surah(i, "Surah $i", Random.nextInt(5, 7200)))
-                    }
-                }
-            )
+        val audioAdapter = AudioPickerAdapter(::openAudioPreviewDialog)
+
+        mSurahViewModel.searchResults.observe(viewLifecycleOwner) {
+            audioAdapter.setSurahList(it)
         }
 
         mBinding.rvAudioPicker.apply {
@@ -216,7 +248,7 @@ class AudioPickerDialog(
             addTextChangedListener {
                 it?.toString()?.let { text ->
                     mBinding.cvClear.visibility = if (text.isNotEmpty()) View.VISIBLE else View.GONE
-                    // TODO do search
+                    mSurahViewModel.filter(text)
                 }
             }
 
