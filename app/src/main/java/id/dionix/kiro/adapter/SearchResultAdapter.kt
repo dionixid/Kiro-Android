@@ -4,19 +4,19 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import id.dionix.kiro.databinding.ItemSearchResultBinding
-import id.dionix.kiro.model.Surah
+import id.dionix.kiro.model.SurahProperties
 import id.dionix.kiro.utility.scaleOnClick
 
 class SearchResultAdapter(
-    onItemSelected: (surah: Surah) -> Unit = {}
+    onItemSelected: (surahProps: SurahProperties) -> Unit = {}
 ) : RecyclerView.Adapter<SearchResultAdapter.ViewHolder>() {
 
     private val mOnItemSelected = onItemSelected
 
-    private var mItems: List<Surah> = listOf()
+    private var mItems: List<SurahProperties> = listOf()
 
-    fun setSurahList(surahList: List<Surah>) {
-        mItems = surahList.map { it.copy() }
+    fun setSurahList(surahProperties: List<SurahProperties>) {
+        mItems = surahProperties.map { it.copy() }
         notifyItemRangeChanged(0, mItems.size)
     }
 
@@ -48,7 +48,7 @@ class SearchResultAdapter(
             }
         }
 
-        var surah: Surah = Surah()
+        var surah: SurahProperties = SurahProperties()
             set(value) {
                 field = value
                 mBinding.tvLabel.text = surah.name
