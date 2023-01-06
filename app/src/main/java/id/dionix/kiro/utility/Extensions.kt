@@ -4,8 +4,10 @@ import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Rect
+import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
+import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -80,10 +82,16 @@ fun LocalDate.format(pattern: String): String {
     return format(DateTimeFormatter.ofPattern(pattern))
 }
 
-fun runMain(task: () -> Unit) {
+fun runMain(run: () -> Unit) {
     CoroutineScope(Dispatchers.Main).launch {
-        task()
+        run()
     }
+}
+
+fun tryRun(run: () -> Unit) {
+    try {
+        run()
+    } catch (_: Exception) {}
 }
 
 fun makeTimer(interval: Long, isContinuous: Boolean = false, callback: () -> Unit): CountDownTimer {
@@ -100,6 +108,24 @@ fun makeTimer(interval: Long, isContinuous: Boolean = false, callback: () -> Uni
 
 fun isDarkMode(context: Context): Boolean {
     return context.resources?.configuration?.uiMode?.and(Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+}
+
+fun getDeviceName(context: Context): String {
+    var model: String? = null
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+        model = Settings.Global.getString(context.contentResolver, Settings.Global.DEVICE_NAME)
+    }
+
+    if (model == null) {
+        model = Build.MODEL
+    }
+
+    return when {
+        model == null -> Build.MANUFACTURER
+        model.lowercase().startsWith(Build.MANUFACTURER.lowercase()) -> model.trim()
+        else -> "${Build.MANUFACTURER} ${model.trim()}"
+    }
 }
 
 fun Context.hideKeyboard(windowToken: IBinder?) {
