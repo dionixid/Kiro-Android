@@ -2,9 +2,10 @@ package id.dionix.kiro.model
 
 import com.codedillo.rttp.model.RObject
 import com.codedillo.rttp.model.Value
+import java.time.DayOfWeek
 
 data class QiroGroup(
-    var dayOfWeek: Int = 0,
+    var dayOfWeek: DayOfWeek = DayOfWeek.SUNDAY,
     var fajr: Qiro = Qiro(name = Prayer.Name.Fajr),
     var dhuhr: Qiro = Qiro(name = Prayer.Name.Dhuhr),
     var asr: Qiro = Qiro(name = Prayer.Name.Asr),
@@ -23,7 +24,7 @@ data class QiroGroup(
     }
 
     fun deepCopy(
-        dayOfWeek: Int = this.dayOfWeek,
+        dayOfWeek: DayOfWeek = this.dayOfWeek,
         fajr: Qiro = this.fajr.deepCopy(),
         dhuhr: Qiro = this.dhuhr.deepCopy(),
         asr: Qiro = this.asr.deepCopy(),
@@ -35,7 +36,7 @@ data class QiroGroup(
 
     override val data: List<Value>
         get() = listOf(
-            Value(dayOfWeek),
+            Value(dayOfWeek.value),
             Value(fajr),
             Value(dhuhr),
             Value(asr),
@@ -54,7 +55,11 @@ data class QiroGroup(
             return
         }
 
-        dayOfWeek = list[0].toInt()
+        if (list[0].toInt() !in 1..7) {
+            isValid = false
+        }
+
+        dayOfWeek = DayOfWeek.values()[list[0].toInt() - 1]
         fajr = list[1].toObject { Qiro() }
         dhuhr = list[2].toObject { Qiro() }
         asr = list[3].toObject { Qiro() }
