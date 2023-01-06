@@ -39,27 +39,22 @@ class DataModelUnitTest {
 
     @Test
     fun qiro_serialization_isCorrect() {
-        Assert.assertEquals("{1,10,[1,2,3],20}", Qiro(Prayer.Name.Dhuhr, 10, listOf(1,2,3), 20).serialize())
+        Assert.assertEquals("{1,10,[{1,20},{2,20},{3,20}],20}", Qiro(Prayer.Name.Dhuhr, 10, listOf(Surah(1, 20), Surah(2, 20), Surah(3, 20)), 20).serialize())
     }
 
     @Test
     fun qiro_group_serialization_isCorrect() {
         Assert.assertEquals(
-            "{6,{0,10,[1],10},{1,20,[1,2],20},{2,30,[1,2,3],30},{3,40,[1,2,3,4],40},{4,50,[1,2,3,4,5],50}}",
+            "{6,{0,10,[{1,20}],10},{1,20,[{1,20},{2,20}],20},{2,30,[{1,20},{2,20},{3,20}],30},{3,40,[{1,20},{2,20},{3,20},{4,20}],40},{4,50,[{1,20},{2,20},{3,20},{4,20},{5,20}],50}}",
             QiroGroup(
                 6,
-                Qiro(Prayer.Name.Fajr, 10, listOf(1), 10),
-                Qiro(Prayer.Name.Dhuhr, 20, listOf(1,2), 20),
-                Qiro(Prayer.Name.Asr, 30, listOf(1,2,3), 30),
-                Qiro(Prayer.Name.Maghrib, 40, listOf(1,2,3,4), 40),
-                Qiro(Prayer.Name.Isha, 50, listOf(1,2,3,4,5), 50)
+                Qiro(Prayer.Name.Fajr, 10, listOf(Surah(1, 20)), 10),
+                Qiro(Prayer.Name.Dhuhr, 20, listOf(Surah(1, 20), Surah(2, 20)), 20),
+                Qiro(Prayer.Name.Asr, 30, listOf(Surah(1, 20), Surah(2, 20), Surah(3, 20)), 30),
+                Qiro(Prayer.Name.Maghrib, 40, listOf(Surah(1, 20), Surah(2, 20), Surah(3, 20), Surah(4, 20)), 40),
+                Qiro(Prayer.Name.Isha, 50, listOf(Surah(1, 20), Surah(2, 20), Surah(3, 20), Surah(4, 20), Surah(5, 20)), 50)
             ).serialize()
         )
-    }
-
-    @Test
-    fun qiro_audio_serialization_isCorrect() {
-        Assert.assertEquals("{true,25}", QiroAudio(true, 25).serialize())
     }
 
     @Test
