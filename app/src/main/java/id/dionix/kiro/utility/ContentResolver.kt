@@ -2,6 +2,10 @@ package id.dionix.kiro.utility
 
 import android.content.Context
 import id.dionix.kiro.R
+import id.dionix.kiro.database.AppDatabase
+import id.dionix.kiro.model.Surah
+import id.dionix.kiro.model.SurahProperties
+import java.time.DayOfWeek
 
 object ContentResolver {
 
@@ -23,5 +27,25 @@ object ContentResolver {
             "version" -> context.getString(R.string.version)
             else -> value
         }
+    }
+
+    fun getDayName(context: Context, dayOfWeek: DayOfWeek): String {
+        return context.getString(
+            when(dayOfWeek) {
+                DayOfWeek.MONDAY -> R.string.monday
+                DayOfWeek.TUESDAY -> R.string.tuesday
+                DayOfWeek.WEDNESDAY -> R.string.wednesday
+                DayOfWeek.THURSDAY -> R.string.thursday
+                DayOfWeek.FRIDAY -> R.string.friday
+                DayOfWeek.SATURDAY -> R.string.saturday
+                else -> R.string.sunday
+            }
+        )
+    }
+
+    suspend fun getSurahProperties(surah: Surah) : SurahProperties {
+        return AppDatabase.getInstance().surahDao.getSurahProperties(surah.id)?.apply {
+            volume = surah.volume
+        } ?: SurahProperties(name = "Untitled", id = surah.id, volume = surah.volume)
     }
 }
