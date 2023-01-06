@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.graphics.Canvas
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.doOnLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -14,11 +15,15 @@ import id.dionix.kiro.R
 import id.dionix.kiro.databinding.ItemPlaylistActionBinding
 import id.dionix.kiro.databinding.ItemPlaylistBinding
 import id.dionix.kiro.dialog.AudioPickerDialog
+import id.dionix.kiro.dialog.AudioPreviewDialog
 import id.dionix.kiro.model.Qiro
 import id.dionix.kiro.model.Surah
-import id.dionix.kiro.utility.dp
-import id.dionix.kiro.utility.format
-import id.dionix.kiro.utility.secondsToTime
+import id.dionix.kiro.model.SurahAudio
+import id.dionix.kiro.model.SurahProperties
+import id.dionix.kiro.utility.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -30,19 +35,19 @@ class PlaylistAdapter(
 
     private var mItems: MutableList<Any> = mutableListOf()
     private var mTotalDuration: Int = 0
-    private var isOpenDialog = false
+    private var mIsOpenDialog = false
 
     init {
         mItems.add(
             Action("Add") {
-                if (!isOpenDialog) {
-                    isOpenDialog = true
+                if (!mIsOpenDialog) {
+                    mIsOpenDialog = true
                     AudioPickerDialog(
                         onItemSelected = {
                             addSurah(it)
                         },
                         onDismiss = {
-                            isOpenDialog = false
+                            mIsOpenDialog = false
                         }
                     ).show(mSupportFragmentManager, "dialog_audio_picker")
                 }
@@ -53,31 +58,34 @@ class PlaylistAdapter(
     fun setQiro(qiro: Qiro) {
         mTotalDuration = qiro.durationMinutes * 60
 
-        val newItems = buildList {
-            qiro.surahIds.forEach {
-                add(Surah(it, "Surah $it", 600))
-                // TODO get surah base on ID
+        CoroutineScope(Dispatchers.IO).launch {
+            val newItems = buildList {
+                qiro.surahList.forEach {
+                    add(ContentResolver.getSurahProperties(it))
+                }
+
+                add(
+                    Action("Add") {
+                        if (!mIsOpenDialog) {
+                            mIsOpenDialog = true
+                            AudioPickerDialog(
+                                onItemSelected = {
+                                    addSurah(it)
+                                },
+                                onDismiss = {
+                                    mIsOpenDialog = false
+                                }
+                            ).show(mSupportFragmentManager, "dialog_audio_picker")
+                        }
+                    }
+                )
             }
 
-            add(
-                Action("Add") {
-                    if (!isOpenDialog) {
-                        isOpenDialog = true
-                        AudioPickerDialog(
-                            onItemSelected = {
-                                addSurah(it)
-                            },
-                            onDismiss = {
-                                isOpenDialog = false
-                            }
-                        ).show(mSupportFragmentManager, "dialog_audio_picker")
-                    }
-                }
-            )
+            runMain {
+                mItems = newItems.toMutableList()
+                notifyItemRangeChanged(0, mItems.size, mItems)
+            }
         }
-
-        mItems = newItems.toMutableList()
-        notifyItemRangeChanged(0, mItems.size, mItems)
     }
 
     fun setTotalDuration(duration: Int) {
@@ -85,22 +93,22 @@ class PlaylistAdapter(
         notifyItemRangeChanged(0, mItems.lastIndex, duration)
     }
 
-    private fun addSurah(surah: Surah) {
+    private fun addSurah(surahProps: SurahProperties) {
         val position = mItems.lastIndex
-        mItems.add(position, surah)
+        mItems.add(position, surahProps)
         notifyItemInserted(position)
-        mOnChange(mItems.filterIsInstance<Surah>().map { it.copy() })
+        mOnChange(mItems.filterIsInstance<SurahProperties>().map { it.toSurah() })
     }
 
     private fun removeSurah(position: Int) {
         mItems.removeAt(position)
         notifyItemRemoved(position)
-        mOnChange(mItems.filterIsInstance<Surah>().map { it.copy() })
+        mOnChange(mItems.filterIsInstance<SurahProperties>().map { it.toSurah() })
     }
 
-    private fun updateSurah(position: Int, surah: Surah) {
-        mItems[position] = surah
-        notifyItemChanged(position, surah)
+    private fun updateSurah(position: Int, surahProps: SurahProperties) {
+        mItems[position] = surahProps
+        notifyItemChanged(position, surahProps)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -125,7 +133,7 @@ class PlaylistAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val item = mItems[position]
         when {
-            holder is SurahViewHolder && item is Surah -> holder.surah = item
+            holder is SurahViewHolder && item is SurahProperties -> holder.surah = item
             holder is ActionViewHolder && item is Action -> holder.action = item
         }
     }
@@ -136,7 +144,7 @@ class PlaylistAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return when (mItems[position]) {
-            is Surah -> TYPE_SURAH
+            is SurahProperties -> TYPE_SURAH
             else -> TYPE_ACTION
         }
     }
@@ -151,42 +159,58 @@ class PlaylistAdapter(
                 return@setOnLongClickListener true
             }
 
-            mBinding.root.setOnClickListener {
-                if (!isOpenDialog) {
-                    isOpenDialog = true
-                    AudioPickerDialog(
-                        onItemSelected = {
-                            updateSurah(adapterPosition, it)
-                        },
-                        onDismiss = {
-                            isOpenDialog = false
-                        }
-                    ).show(mSupportFragmentManager, "dialog_audio_picker")
+            mBinding.root.apply {
+                setOnClickListener {
+                    if (!mIsOpenDialog) {
+                        mIsOpenDialog = true
+                        AudioPreviewDialog(
+                            surah.name,
+                            context.getString(R.string.apply),
+                            SurahAudio(surah.id, surah.volume, isPaused = false, isPlaying = false),
+                            onApply =  { audio ->
+                                updateSurah(adapterPosition, surah.copy(volume = audio.volume))
+                            },
+                            onDismiss = {
+                                mIsOpenDialog = false
+                            }
+                        ).show(mSupportFragmentManager, "dialog_audio_preview")
+                        AudioPickerDialog(
+                            onItemSelected = {
+                                updateSurah(adapterPosition, it)
+                            },
+                            onDismiss = {
+                                mIsOpenDialog = false
+                            }
+                        ).show(mSupportFragmentManager, "dialog_audio_picker")
+                    }
                 }
             }
         }
 
-        var surah: Surah = Surah()
+        var surah: SurahProperties = SurahProperties()
             set(value) {
                 field = value
                 mBinding.tvName.text = value.name
+                mBinding.tvVolume.text = value.volume.toString()
                 mBinding.tvDuration.text = value.durationSeconds.secondsToTime().format("HH:mm:ss")
 
                 durationAnimator?.cancel()
-                durationAnimator = ValueAnimator.ofInt(
-                    mBinding.cvDurationForeground.measuredWidth,
-                    (calculateRelativePlaytime(adapterPosition) * mBinding.cvDurationBackground.measuredWidth).roundToInt()
-                ).apply {
-                    addUpdateListener {
-                        mBinding.cvDurationForeground.apply {
-                            val params = layoutParams.apply {
-                                width = it.animatedValue as Int
+                mBinding.cvDurationBackground.doOnLayout {
+                    durationAnimator = ValueAnimator.ofInt(
+                        mBinding.cvDurationForeground.measuredWidth,
+                        (calculateRelativePlaytime(adapterPosition) * mBinding.cvDurationBackground.measuredWidth).roundToInt()
+                    ).apply {
+                        addUpdateListener {
+                            mBinding.cvDurationForeground.apply {
+                                val params = layoutParams.apply {
+                                    width = it.animatedValue as Int
+                                }
+                                layoutParams = params
                             }
-                            layoutParams = params
                         }
+                        duration = 200
+                        start()
                     }
-                    duration = 200
-                    start()
                 }
             }
 
@@ -229,13 +253,13 @@ class PlaylistAdapter(
         var elapsed = 0
         val surah = mItems.getOrNull(position) ?: return 0f
 
-        if (surah !is Surah) {
+        if (surah !is SurahProperties) {
             return 0f
         }
 
         for (i in 0 until position) {
             val item = mItems[i]
-            if (item is Surah) {
+            if (item is SurahProperties) {
                 elapsed += item.durationSeconds
             }
         }
