@@ -16,10 +16,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class RTTPClient(
-    host: String,
-    port: Int,
-    name: String,
-    id: String,
+    host: String = "",
+    port: Int = 0,
+    name: String = "",
+    id: String = "",
 ) {
 
     private var mHost: String = host
@@ -134,10 +134,11 @@ class RTTPClient(
             val client = mClient
             CoroutineScope(Dispatchers.IO).launch {
                 while (client.state == WebSocketState.CREATED || client.state == WebSocketState.CONNECTING) {
-//                    Log.println(Log.ASSERT, "RTTPClient", client.state.name)
                     delay(1000)
                 }
-                client.disconnect()
+                CoroutineScope(Dispatchers.Main).launch {
+                    client.disconnect()
+                }
             }
         }
         mIsAutoConnect = false
