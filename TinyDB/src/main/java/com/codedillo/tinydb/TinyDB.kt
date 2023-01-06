@@ -168,12 +168,15 @@ class TinyDB private constructor(
 
         fun getStore(context: Context): DataStore<Preferences> = context.dataStore
 
-        fun getInstance(context: Context? = null): TinyDB {
+        fun initialize(context: Context) {
             if (!this::tinyDB.isInitialized) {
-                if (context == null) {
-                    throw IllegalStateException("Attempt to access TinyDB before it was initialized.")
-                }
                 tinyDB = TinyDB(context.dataStore)
+            }
+        }
+
+        fun getInstance(): TinyDB {
+            if (!this::tinyDB.isInitialized) {
+                throw IllegalStateException("Attempt to access TinyDB before it was initialized.")
             }
             return tinyDB
         }
