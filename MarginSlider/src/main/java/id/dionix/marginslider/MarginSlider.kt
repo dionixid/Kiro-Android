@@ -8,8 +8,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import androidx.cardview.widget.CardView
-import androidx.core.view.doOnLayout
-import androidx.core.view.doOnPreDraw
 import kotlin.math.max
 import kotlin.math.min
 
