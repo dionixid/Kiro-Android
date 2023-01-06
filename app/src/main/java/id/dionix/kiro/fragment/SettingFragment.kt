@@ -16,6 +16,7 @@ import id.dionix.kiro.databinding.FragmentSettingBinding
 import id.dionix.kiro.dialog.*
 import id.dionix.kiro.model.Setting
 import id.dionix.kiro.model.SettingGroup
+import id.dionix.kiro.utility.Config
 import id.dionix.kiro.utility.dip
 import id.dionix.kiro.utility.dp
 import id.dionix.kiro.utility.scaleOnClick
@@ -205,6 +206,7 @@ class SettingFragment : Fragment() {
                     label = "Disconnect",
                     color = requireContext().getColor(R.color.red)
                 ) {
+                    Config.resetDevice()
                     mDataViewModel.leave()
                 }
             )
