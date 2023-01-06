@@ -3,12 +3,18 @@ package id.dionix.kiro.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import id.dionix.kiro.R
 import id.dionix.kiro.databinding.ItemScheduleBinding
 import id.dionix.kiro.model.Prayer
 import id.dionix.kiro.model.QiroGroup
+import id.dionix.kiro.utility.ContentResolver
+import id.dionix.kiro.utility.runMain
 import id.dionix.kiro.utility.scaleOnClick
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ScheduleAdapter(
     onItemSelected: (prayerName: Prayer.Name, qiroGroup: QiroGroup) -> Unit = { _, _ -> }
@@ -16,7 +22,29 @@ class ScheduleAdapter(
 
     private val mOnItemSelected = onItemSelected
 
-    private var mItems: MutableList<QiroGroup> = mutableListOf()
+    private var mItems: List<QiroGroup> = listOf()
+    set(value) {
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int {
+                return field.size
+            }
+
+            override fun getNewListSize(): Int {
+                return value.size
+            }
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return field[oldItemPosition] == value[newItemPosition]
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return field[oldItemPosition] == value[newItemPosition]
+            }
+        })
+
+        field = value
+        diffResult.dispatchUpdatesTo(this)
+    }
 
     var currentPrayerName: Prayer.Name = Prayer.Name.Fajr
         set(value) {
@@ -25,16 +53,7 @@ class ScheduleAdapter(
         }
 
     fun setQiroGroups(qiroGroups: List<QiroGroup>) {
-        mItems = qiroGroups.map { it.copy() }.sortedBy { it.dayOfWeek }.toMutableList()
-        notifyItemRangeChanged(0, mItems.size, qiroGroups)
-    }
-
-    fun setQiroGroup(qiroGroup: QiroGroup) {
-        val position = mItems.indexOfFirst { it.dayOfWeek == qiroGroup.dayOfWeek }
-        if (position != -1) {
-            mItems[position] = qiroGroup.copy()
-            notifyItemChanged(position, qiroGroup)
-        }
+        mItems = qiroGroups.map { it.copy() }.sortedBy { it.dayOfWeek }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -71,17 +90,7 @@ class ScheduleAdapter(
                 val qiro = value.getQiro(currentPrayerName)
 
                 mBinding.tvTitle.apply {
-                    text = context.getString(
-                        when (value.dayOfWeek) {
-                            0 -> R.string.sunday
-                            1 -> R.string.monday
-                            2 -> R.string.tuesday
-                            3 -> R.string.wednesday
-                            4 -> R.string.thursday
-                            5 -> R.string.friday
-                            else -> R.string.saturday
-                        }
-                    )
+                    text = ContentResolver.getDayName(context, value.dayOfWeek)
                 }
 
                 mBinding.cvQiroDuration.apply {
@@ -116,10 +125,15 @@ class ScheduleAdapter(
                 }
 
                 mBinding.tvSurah.apply {
-                    text = if (qiro.durationMinutes > 0) {
-                        "Al baqarah" // TODO Get surah name based on its id
+                    if (qiro.surahList.isNotEmpty()) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val name = ContentResolver.getSurahProperties(qiro.surahList[0]).name
+                            runMain {
+                                text = name
+                            }
+                        }
                     } else {
-                        context.getString(R.string.inactive)
+                        text = context.getString(R.string.inactive)
                     }
                 }
             }
