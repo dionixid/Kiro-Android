@@ -17,6 +17,40 @@
         android:background="@color/background_secondary"
         android:layout_height="match_parent">
 
+        <LinearLayout
+            android:id="@+id/ll_volume"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:background="@drawable/ic_background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="4dp"
+                android:src="@drawable/ic_round_volume_up"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/tv_volume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="2dp"
+                android:background="@color/transparent"
+                android:fontFamily="@font/azeret_mono_light"
+                android:gravity="end"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                tools:text="20" />
+
+        </LinearLayout>
+
         <TextView
             android:id="@+id/tv_name"
             android:layout_width="wrap_content"
@@ -25,10 +59,14 @@
             android:layout_marginStart="16dp"
             android:background="@color/transparent"
             android:fontFamily="@font/dm_sans"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintHorizontal_bias="0"
             android:textColor="@color/text_primary"
             android:textSize="14dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_duration"
+            app:layout_constraintStart_toEndOf="@+id/ll_volume"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Al-baqarah" />
 
