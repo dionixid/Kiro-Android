@@ -75,4 +75,18 @@
     <string name="search">Cari...</string>
     <string name="last_result">Pencarian terakhir</string>
     <string name="prayer_time_offset">Selisih Waktu Sholat</string>
+    <string name="available_devices">Perangkat Tersedia</string>
+    <string name="no_devices_found">Perangkat tidak ditemukan</string>
+    <string name="connect_device">Hubungkan Perangkat</string>
+    <string name="enter_password">Masukkan kata sandi.</string>
+    <string name="choose">Pilih</string>
+    <string name="volume">Volume</string>
+    <string name="apply">Terapkan</string>
+    <string name="close">Tutup</string>
+    <string name="turn_off">Matikan</string>
+    <string name="surah_force_stop_description">Anda yakin ingin menghentikan daftar putar saat ini?</string>
+    <string name="stop">Hentikan</string>
+    <string name="updating_playlist">Memperbarui playlist..</string>
+    <string name="device_not_connected">Perangkat tidak terhubung</string>
+    <string name="find_device">Cari Perangkat</string>
 </resources>
