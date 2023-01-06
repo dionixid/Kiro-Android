@@ -147,6 +147,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
 
     fun leave() {
         repository.leave()
+        mMutableDevice.value = null
     }
 
     fun setClientID(name: String, id: String) {
