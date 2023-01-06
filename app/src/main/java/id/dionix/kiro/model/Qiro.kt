@@ -7,8 +7,7 @@ import java.time.format.DateTimeFormatter
 data class Qiro(
     var name: Prayer.Name = Prayer.Name.Fajr,
     var durationMinutes: Int = 0,
-    var surahList: List<Surah> = listOf(),
-    var volume: Int = 0
+    var surahList: List<Surah> = listOf()
 ): RObject() {
 
     fun getFormattedTime(prayer: Prayer): String {
@@ -18,22 +17,21 @@ data class Qiro(
     fun deepCopy(
         name: Prayer.Name = this.name,
         durationMinutes: Int = this.durationMinutes,
-        surahList: List<Surah> = this.surahList.map { it.copy() },
-        volume: Int = this.volume
+        surahList: List<Surah> = this.surahList.map { it.copy() }
     ): Qiro {
-        return Qiro(name, durationMinutes, surahList, volume)
+        return Qiro(name, durationMinutes, surahList)
     }
 
     override val data: List<Value>
-        get() = listOf(Value(name.ordinal), Value(durationMinutes), Value(surahList), Value(volume))
+        get() = listOf(Value(name.ordinal), Value(durationMinutes), Value(surahList))
 
     override fun assign(list: List<Value>) {
-        if (list.size != 4) {
+        if (list.size != 3) {
             isValid = false
             return
         }
 
-        if (!list[0].isNumber() || !list[1].isNumber() || !list[2].isNumber() || !list[3].isNumber()) {
+        if (!list[0].isNumber() || !list[1].isNumber() || !list[2].isArray()) {
             isValid = false
             return
         }
@@ -47,7 +45,6 @@ data class Qiro(
         name = Prayer.Name.values()[nameIndex]
         durationMinutes = list[1].toInt()
         surahList = list[2].toList { it.toObject { Surah() } }
-        volume = list[3].toInt()
     }
 
     companion object {
