@@ -5,19 +5,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import id.dionix.kiro.databinding.ItemPlaylistBinding
-import id.dionix.kiro.model.Surah
+import id.dionix.kiro.model.SurahProperties
 import id.dionix.kiro.utility.format
 import id.dionix.kiro.utility.secondsToTime
 
 class AudioPickerAdapter(
-    onItemSelected: (surah: Surah) -> Unit = {}
+    onItemSelected: (surahProps: SurahProperties) -> Unit = {}
 ) : RecyclerView.Adapter<AudioPickerAdapter.ViewHolder>() {
 
     private val mOnItemSelected = onItemSelected
 
-    private var mItems: List<Surah> = listOf()
+    private var mItems: List<SurahProperties> = listOf()
 
-    fun setSurahList(surahList: List<Surah>) {
+    fun setSurahList(surahList: List<SurahProperties>) {
         mItems = surahList.map { it.copy() }
         notifyItemRangeChanged(0, mItems.size)
     }
@@ -49,9 +49,10 @@ class AudioPickerAdapter(
                 mOnItemSelected(surah.copy())
             }
             mBinding.cvDurationBackground.visibility = View.GONE
+            mBinding.llVolume.visibility = View.GONE
         }
 
-        var surah: Surah = Surah()
+        var surah: SurahProperties = SurahProperties()
             set(value) {
                 field = value
                 mBinding.tvName.text = value.name
