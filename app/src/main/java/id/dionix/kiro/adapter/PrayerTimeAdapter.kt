@@ -9,16 +9,23 @@ import id.dionix.kiro.R
 import id.dionix.kiro.databinding.ItemPrayerTimeActiveBinding
 import id.dionix.kiro.databinding.ItemPrayerTimeBinding
 import id.dionix.kiro.model.*
+import id.dionix.kiro.utility.ContentResolver
+import id.dionix.kiro.utility.runMain
 import id.dionix.kiro.utility.scaleOnClick
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class PrayerTimeAdapter(
+    onForceStop: (surah: SurahProperties) -> Unit = {},
     onItemSelected: (prayerTimeOffset: PrayerTimeOffset) -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private val mOnForceStop = onForceStop
     private val mOnItemSelected = onItemSelected
     private val mGroup = PrayerQiroGroup()
 
-    var qiroAudio: QiroAudio = QiroAudio()
+    var surahAudio: SurahAudio = SurahAudio()
         set(value) {
             field = value
             notifyItemChanged(0, value)
@@ -95,14 +102,29 @@ class PrayerTimeAdapter(
 
         private val context: Context get() = mBinding.root.context
 
+        init {
+            mBinding.cvStop.scaleOnClick {
+                if (surahAudio.isPlaying) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val surah = ContentResolver.getSurahProperties(surahAudio.toSurah())
+                        runMain {
+                            mOnForceStop(surah)
+                        }
+                    }
+                }
+            }
+        }
+
         var prayerQiro: PrayerQiro = PrayerQiro()
             set(value) {
                 field = value
 
                 mBinding.tvTitle.text = context.getString(
-                    if (qiroAudio.isPlaying) R.string.ongoing
+                    if (surahAudio.isPlaying) R.string.ongoing
                     else R.string.next
                 )
+
+                mBinding.cvStop.visibility = if (surahAudio.isPlaying) View.VISIBLE else View.GONE
 
                 mBinding.tvQiroTime.text = if (value.qiro.durationMinutes > 0) {
                     value.qiro.getFormattedTime(value.prayer)
@@ -122,10 +144,22 @@ class PrayerTimeAdapter(
                     )
                 )
 
-                mBinding.tvSurah.text = if (value.qiro.durationMinutes > 0) {
-                    "Al baqarah" // TODO Get surah name based on its id
+                if (value.qiro.surahList.isNotEmpty()) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val name = ContentResolver.getSurahProperties(
+                            if (surahAudio.isPlaying) {
+                                surahAudio.toSurah()
+                            } else {
+                                value.qiro.surahList[0]
+                            }
+                        ).name
+
+                        runMain {
+                            mBinding.tvSurah.text = name
+                        }
+                    }
                 } else {
-                    context.getString(R.string.inactive)
+                    mBinding.tvSurah.text = context.getString(R.string.inactive)
                 }
 
                 mBinding.tvPrayerTime.text = when (value.prayer.name) {
@@ -218,11 +252,17 @@ class PrayerTimeAdapter(
                 )
 
                 mBinding.tvSurah.apply {
-                    visibility = if (value.qiro.durationMinutes == 0) View.GONE else View.VISIBLE
-                    text = if (value.qiro.durationMinutes > 0) {
-                        "Al baqarah" // TODO Get surah name based on its id
+                    visibility = if (value.qiro.surahList.isEmpty()) View.GONE else View.VISIBLE
+
+                    if (value.qiro.surahList.isNotEmpty()) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val name = ContentResolver.getSurahProperties(value.qiro.surahList[0]).name
+                            runMain {
+                                text = name
+                            }
+                        }
                     } else {
-                        context.getString(R.string.inactive)
+                        text = context.getString(R.string.inactive)
                     }
                 }
 
