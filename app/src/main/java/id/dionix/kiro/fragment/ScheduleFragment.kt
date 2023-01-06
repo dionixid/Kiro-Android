@@ -9,17 +9,26 @@ import android.view.ViewGroup.MarginLayoutParams
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import id.dionix.kiro.R
 import id.dionix.kiro.adapter.ScheduleAdapter
+import id.dionix.kiro.database.DataViewModel
 import id.dionix.kiro.databinding.FragmentScheduleBinding
+import id.dionix.kiro.dialog.DeviceDialog
+import id.dionix.kiro.dialog.ScheduleDialog
 import id.dionix.kiro.model.Prayer
 import id.dionix.kiro.utility.dip
+import id.dionix.kiro.utility.scaleOnClick
 
-class ScheduleFragment: Fragment() {
+class ScheduleFragment : Fragment() {
 
     private lateinit var mBinding: FragmentScheduleBinding
+
+    private var mIsOpenDialog = false
+
+    private val mDataViewModel by activityViewModels<DataViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,7 +49,26 @@ class ScheduleFragment: Fragment() {
             setPadding(16.dip, 16.dip + insets.top, 16.dip, 16.dip)
         }
 
-        val scheduleAdapter = ScheduleAdapter()
+        val scheduleAdapter = ScheduleAdapter { prayerName, qiroGroup ->
+            if (!mIsOpenDialog) {
+                mIsOpenDialog = true
+
+                ScheduleDialog(
+                    prayerName,
+                    qiroGroup,
+                    onSave = {
+                        mDataViewModel.sendQiroGroup(it)
+                    },
+                    onDismiss = {
+                        mIsOpenDialog = false
+                    }
+                ).show(requireActivity().supportFragmentManager, "dialog_schedule")
+            }
+        }
+
+        mDataViewModel.qiroGroups.observe(viewLifecycleOwner) {
+            scheduleAdapter.setQiroGroups(it)
+        }
 
         fun updatePrayer(name: Prayer.Name) {
             mBinding.tvPrayerName.text = requireContext().getString(
@@ -85,11 +113,11 @@ class ScheduleFragment: Fragment() {
             )
         }
 
-        updatePrayer(scheduleAdapter.currentPrayer)
+        updatePrayer(scheduleAdapter.currentPrayerName)
 
         mBinding.clContainer.setOnClickListener {
-            scheduleAdapter.currentPrayer = scheduleAdapter.currentPrayer.next()
-            updatePrayer(scheduleAdapter.currentPrayer)
+            scheduleAdapter.currentPrayerName = scheduleAdapter.currentPrayerName.next()
+            updatePrayer(scheduleAdapter.currentPrayerName)
         }
 
         mBinding.recyclerView.apply {
@@ -110,6 +138,21 @@ class ScheduleFragment: Fragment() {
                     }
                 }
             })
+
+        }
+
+        mDataViewModel.device.observe(viewLifecycleOwner) {
+            mBinding.recyclerView.visibility = if (it == null) View.GONE else View.VISIBLE
+            mBinding.llDeviceNotConnected.visibility = if (it == null) View.VISIBLE else View.GONE
+        }
+
+        mBinding.cvFindDevice.scaleOnClick {
+            if (!mIsOpenDialog) {
+                mIsOpenDialog = true
+                DeviceDialog {
+                    mIsOpenDialog = false
+                }.show(requireActivity().supportFragmentManager, "dialog_device")
+            }
         }
 
         return mBinding.root

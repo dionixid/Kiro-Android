@@ -7,16 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
+import id.dionix.kiro.R
 import id.dionix.kiro.adapter.PrayerTimeAdapter
+import id.dionix.kiro.database.DataViewModel
 import id.dionix.kiro.databinding.FragmentPrayerTimeBinding
+import id.dionix.kiro.dialog.ConfirmationDialog
+import id.dionix.kiro.dialog.DeviceDialog
+import id.dionix.kiro.dialog.PrayerTimeDialog
 import id.dionix.kiro.utility.dip
+import id.dionix.kiro.utility.format
 import id.dionix.kiro.utility.scaleOnClick
+import java.time.LocalDate
 
 class PrayerTimeFragment : Fragment() {
 
     private lateinit var mBinding: FragmentPrayerTimeBinding
+
+    private var mIsOpenDialog = false
+
+    private val mDataViewModel by activityViewModels<DataViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,13 +37,23 @@ class PrayerTimeFragment : Fragment() {
     ): View {
         mBinding = FragmentPrayerTimeBinding.inflate(inflater, container, false)
 
-        mBinding.tvTime.text = "00:00"
-        mBinding.tvDate.text = "26"
-        mBinding.tvMonth.text = "Desember"
-        mBinding.tvYear.text = "2022"
+        mDataViewModel.time.observe(viewLifecycleOwner) {
+            mBinding.tvTime.text = it.format("HH:mm")
+        }
+
+        mDataViewModel.date.observe(viewLifecycleOwner) {
+            mBinding.tvDate.text = it.format("dd")
+            mBinding.tvMonth.text = it.format("MMMM")
+            mBinding.tvYear.text = it.format("yyyy")
+        }
 
         mBinding.cvDevice.scaleOnClick {
-            // TODO Open device dialog
+            if (!mIsOpenDialog) {
+                mIsOpenDialog = true
+                DeviceDialog {
+                    mIsOpenDialog = false
+                }.show(requireActivity().supportFragmentManager, "dialog_device")
+            }
         }
 
         mBinding.ivLogo.apply {
@@ -49,7 +71,82 @@ class PrayerTimeFragment : Fragment() {
             !mBinding.recyclerView.canScrollVertically(-1)
         }
 
-        val prayerTimeAdapter = PrayerTimeAdapter()
+        val prayerTimeAdapter = PrayerTimeAdapter(
+            onForceStop = {
+                if (!mIsOpenDialog) {
+                    mIsOpenDialog = true
+
+                    ConfirmationDialog(
+                        it.name,
+                        getString(R.string.surah_force_stop_description),
+                        getString(R.string.stop),
+                        requireContext().getColor(R.color.red),
+                        onConfirm = {
+                            mDataViewModel.sendSurahForceStopCommand()
+                        },
+                        onDismiss = {
+                            mIsOpenDialog = false
+                        }
+                    )
+                }
+            },
+            onItemSelected = {
+                if (!mIsOpenDialog) {
+                    mIsOpenDialog = true
+
+                    PrayerTimeDialog(
+                        it,
+                        onSave = { offset ->
+                            mDataViewModel.sendPrayerTimeOffset(offset)
+                        },
+                        onDismiss = {
+                            mIsOpenDialog = false
+                        }
+                    ).show(requireActivity().supportFragmentManager, "dialog_prayer_time_offset")
+                }
+            }
+        )
+
+        mDataViewModel.surahOngoing.observe(viewLifecycleOwner) {
+            prayerTimeAdapter.surahAudio = it
+        }
+
+        mDataViewModel.prayerGroup.observe(viewLifecycleOwner) {
+            prayerTimeAdapter.setPrayerGroup(it)
+        }
+
+        mDataViewModel.prayerOngoing.observe(viewLifecycleOwner) {
+            prayerTimeAdapter.setOngoingPrayer(it)
+        }
+
+        mDataViewModel.qiroOngoing.observe(viewLifecycleOwner) {
+            prayerTimeAdapter.setOngoingQiro(it)
+        }
+
+        mDataViewModel.qiroGroups.observe(viewLifecycleOwner) {
+            it.forEach { group ->
+                if (LocalDate.now().dayOfWeek == group.dayOfWeek) {
+                    prayerTimeAdapter.setQiroGroup(group)
+                    return@observe
+                }
+            }
+        }
+
+        mDataViewModel.device.observe(viewLifecycleOwner) {
+            mBinding.tvDevice.text = it?.name ?: getString(R.string.device)
+            mBinding.marginSlider.maxMargin = if (it == null) 16.dip else (-100).dip
+            mBinding.recyclerView.visibility = if (it == null) View.GONE else View.VISIBLE
+            mBinding.llDeviceNotConnected.visibility = if (it == null) View.VISIBLE else View.GONE
+        }
+
+        mBinding.cvFindDevice.scaleOnClick {
+            if (!mIsOpenDialog) {
+                mIsOpenDialog = true
+                DeviceDialog {
+                    mIsOpenDialog = false
+                }.show(requireActivity().supportFragmentManager, "dialog_device")
+            }
+        }
 
         mBinding.recyclerView.apply {
             adapter = prayerTimeAdapter

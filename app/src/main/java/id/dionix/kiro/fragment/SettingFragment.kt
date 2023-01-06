@@ -6,21 +6,28 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
-import com.codedillo.rttp.model.Value
 import id.dionix.kiro.R
 import id.dionix.kiro.adapter.SettingAdapter
+import id.dionix.kiro.database.DataViewModel
 import id.dionix.kiro.databinding.FragmentSettingBinding
-import id.dionix.kiro.model.Device
+import id.dionix.kiro.dialog.*
 import id.dionix.kiro.model.Setting
 import id.dionix.kiro.model.SettingGroup
 import id.dionix.kiro.utility.dip
 import id.dionix.kiro.utility.dp
+import id.dionix.kiro.utility.scaleOnClick
 
-class SettingFragment: Fragment() {
+class SettingFragment : Fragment() {
 
     private lateinit var mBinding: FragmentSettingBinding
+
+    private var settingGroups = listOf<SettingGroup>()
+    private var mIsOpenDialog = false
+
+    private val mDataViewModel by viewModels<DataViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,50 +47,156 @@ class SettingFragment: Fragment() {
             layoutParams = params
         }
 
+        val settingAdapter = SettingAdapter { setting ->
+            when (setting.type) {
+                Setting.Type.String,
+                Setting.Type.Float,
+                Setting.Type.Integer -> {
+                    val group = settingGroups.find { group ->
+                        group.settings.find { it.id == setting.id } != null
+                    } ?: return@SettingAdapter
 
-        val settingAdapter = SettingAdapter()
+                    if (!mIsOpenDialog) {
+                        mIsOpenDialog = true
 
-        settingAdapter.setDevice(Device("23d407ac-d96f-4a5a-be36-8417fe5710c7", "Kiro 2F7A"))
+                        ValueDialog(
+                            group.name,
+                            setting,
+                            onSave = { newValue ->
+                                mDataViewModel.sendSettingGroup(group.copy(settings = listOf(newValue)))
+                            },
+                            onDismiss = {
+                                mIsOpenDialog = false
+                            }
+                        ).show(requireActivity().supportFragmentManager, "dialog_location")
+                    }
+                }
+                Setting.Type.Time,
+                Setting.Type.Date -> {
+                    val dateTimeGroup = settingGroups.find { group ->
+                        group.settings.find { it.id == setting.id } != null
+                    } ?: return@SettingAdapter
 
-        settingAdapter.setSettingGroups(
-            listOf(
-                SettingGroup(
-                    name = "Date and Time",
-                    settings = listOf(
-                        Setting("DT0", Setting.Type.Time, "Time", Value(36000)),
-                        Setting("DT1", Setting.Type.Date, "Date", Value("28-12-2022"))
-                    )
-                ),
-                SettingGroup(
-                    name = "Location",
-                    settings = listOf(
-                        Setting("L0", Setting.Type.Latitude, "Latitude", Value(-7.237072)),
-                        Setting("L1", Setting.Type.Longitude, "Longitude", Value(110.411327)),
-                        Setting("L2", Setting.Type.Elevation, "Elevation", Value(604)),
-                    )
-                ),
-                SettingGroup(
-                    name = "WiFi",
-                    settings = listOf(
-                        Setting("W0", Setting.Type.Info, "Status", Value("disconnected")),
-                        Setting("W1", Setting.Type.WiFi, "SSID", Value("Anindia")),
-                        Setting("W2", Setting.Type.WiFi, "Password", Value(""), true)
-                    )
-                ),
-                SettingGroup(
-                    name = "Security",
-                    settings = listOf(
-                        Setting("S0", Setting.Type.String, "Password", Value("12345678"), true)
-                    )
-                ),
-                SettingGroup(
-                    name = "About",
-                    settings = listOf(
-                        Setting("A0", Setting.Type.Info, "Version", Value("1.0.0.001"))
-                    )
-                ),
-            )
-        )
+                    val time = dateTimeGroup.settings.find {
+                        it.type == Setting.Type.Time
+                    } ?: return@SettingAdapter
+
+                    val date = dateTimeGroup.settings.find {
+                        it.type == Setting.Type.Date
+                    } ?: return@SettingAdapter
+
+                    if (!mIsOpenDialog) {
+                        mIsOpenDialog = true
+
+                        DateTimeDialog(
+                            time,
+                            date,
+                            onSave = { newTime, newDate ->
+                                mDataViewModel.sendSettingGroup(
+                                    dateTimeGroup.copy(settings = listOf(newTime, newDate))
+                                )
+                            },
+                            onDismiss = {
+                                mIsOpenDialog = false
+                            }
+                        ).show(requireActivity().supportFragmentManager, "dialog_location")
+                    }
+                }
+                Setting.Type.WiFi -> {
+                    val wifiGroup = settingGroups.find { group ->
+                        group.settings.find { it.id == setting.id } != null
+                    } ?: return@SettingAdapter
+
+                    val ssid = wifiGroup.settings.find {
+                        it.type == Setting.Type.WiFi && !it.isConfidential
+                    } ?: return@SettingAdapter
+
+                    val password = wifiGroup.settings.find {
+                        it.type == Setting.Type.WiFi && it.isConfidential
+                    } ?: return@SettingAdapter
+
+                    if (!mIsOpenDialog) {
+                        mIsOpenDialog = true
+
+                        WiFiDialog(
+                            ssid,
+                            password,
+                            onSave = { newSsid, newPassword ->
+                                mDataViewModel.sendSettingGroup(
+                                    wifiGroup.copy(settings = listOf(newSsid, newPassword))
+                                )
+                            },
+                            onDismiss = {
+                                mIsOpenDialog = false
+                            }
+                        ).show(requireActivity().supportFragmentManager, "dialog_wifi")
+                    }
+                }
+                Setting.Type.Latitude,
+                Setting.Type.Longitude,
+                Setting.Type.Elevation -> {
+                    val locationGroup = settingGroups.find { group ->
+                        group.settings.find { it.id == setting.id } != null
+                    } ?: return@SettingAdapter
+
+                    val latitude = locationGroup.settings.find {
+                        it.type == Setting.Type.Latitude
+                    } ?: return@SettingAdapter
+
+                    val longitude = locationGroup.settings.find {
+                        it.type == Setting.Type.Longitude
+                    } ?: return@SettingAdapter
+
+                    val elevation = locationGroup.settings.find {
+                        it.type == Setting.Type.Elevation
+                    } ?: return@SettingAdapter
+
+                    if (!mIsOpenDialog) {
+                        mIsOpenDialog = true
+
+                        LocationDialog(
+                            latitude,
+                            longitude,
+                            elevation,
+                            onSave = { newLatitude, newLongitude, newElevation ->
+                                mDataViewModel.sendSettingGroup(
+                                    locationGroup.copy(settings = listOf(newLatitude, newLongitude, newElevation))
+                                )
+                            },
+                            onDismiss = {
+                                mIsOpenDialog = false
+                            }
+                        ).show(requireActivity().supportFragmentManager, "dialog_location")
+                    }
+                }
+                else -> {
+                    // Do nothing
+                }
+            }
+        }
+
+        mDataViewModel.device.observe(viewLifecycleOwner) {
+            it?.let { device ->
+                settingAdapter.setDevice(device)
+            }
+
+            mBinding.recyclerView.visibility = if (it == null) View.GONE else View.VISIBLE
+            mBinding.llDeviceNotConnected.visibility = if (it == null) View.VISIBLE else View.GONE
+        }
+
+        mBinding.cvFindDevice.scaleOnClick {
+            if (!mIsOpenDialog) {
+                mIsOpenDialog = true
+                DeviceDialog {
+                    mIsOpenDialog = false
+                }.show(requireActivity().supportFragmentManager, "dialog_device")
+            }
+        }
+
+        mDataViewModel.settingGroups.observe(viewLifecycleOwner) {
+            settingGroups = it
+            settingAdapter.setSettingGroups(it)
+        }
 
         settingAdapter.setActions(
             listOf(
@@ -92,7 +205,7 @@ class SettingFragment: Fragment() {
                     label = "Disconnect",
                     color = requireContext().getColor(R.color.red)
                 ) {
-                    // TODO Connect or Disconnect device
+                    mDataViewModel.leave()
                 }
             )
         )
