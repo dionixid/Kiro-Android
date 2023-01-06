@@ -4,11 +4,11 @@ import com.codedillo.rttp.model.RObject
 import com.codedillo.rttp.model.Value
 
 data class PrayerTimeOffset(
-    var fajr: Int,
-    var dhuhr: Int,
-    var asr: Int,
-    var maghrib: Int,
-    var isha: Int
+    var fajr: Int = 0,
+    var dhuhr: Int = 0,
+    var asr: Int = 0,
+    var maghrib: Int = 0,
+    var isha: Int = 0
 ): RObject() {
 
     override val data: List<Value>
