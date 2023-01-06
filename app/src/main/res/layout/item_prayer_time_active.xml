@@ -91,6 +91,28 @@
 
         </androidx.cardview.widget.CardView>
 
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_stop"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintDimensionRatio="W,1:1"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="@+id/cv_qiro_time"
+            app:layout_constraintStart_toEndOf="@+id/cv_qiro_time"
+            app:layout_constraintTop_toTopOf="@+id/cv_qiro_time">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_round_stop"
+                app:tint="@color/red" />
+
+        </androidx.cardview.widget.CardView>
+
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/appCompatImageView"
             android:layout_width="20dp"
