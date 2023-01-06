@@ -23,6 +23,7 @@ import id.dionix.kiro.databinding.DialogScheduleBinding
 import id.dionix.kiro.model.Prayer
 import id.dionix.kiro.model.Qiro
 import id.dionix.kiro.model.QiroGroup
+import id.dionix.kiro.utility.ContentResolver
 import id.dionix.kiro.utility.dip
 import id.dionix.kiro.utility.dp
 import id.dionix.kiro.utility.scaleOnClick
@@ -125,22 +126,12 @@ class ScheduleDialog(
         }
 
         val playlistAdapter = PlaylistAdapter { surahList ->
-            mQiroGroup.getQiro(mCurrentPrayerName).surahIds = surahList.map { it.id }
+            mQiroGroup.getQiro(mCurrentPrayerName).surahList = surahList.map { it }
         }.apply {
             setQiro(mQiroGroup.getQiro(mCurrentPrayerName))
         }
 
-        mBinding.tvTitle.text = requireContext().getString(
-            when (mQiroGroup.dayOfWeek) {
-                0 -> R.string.sunday
-                1 -> R.string.monday
-                2 -> R.string.tuesday
-                3 -> R.string.wednesday
-                4 -> R.string.thursday
-                5 -> R.string.friday
-                else -> R.string.saturday
-            }
-        )
+        mBinding.tvTitle.text = ContentResolver.getDayName(requireContext(), mQiroGroup.dayOfWeek)
 
         durationSet.apply {
             divider.color = requireContext().getColor(R.color.disabled)
