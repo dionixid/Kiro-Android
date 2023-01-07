@@ -302,49 +302,24 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
                 return@onTopic
             }
 
-            if (!it.payload.isString()) {
-                return@onTopic
-            }
+            val collection = it.payload.toObject { SurahCollection() }
+            if (collection.isValid) {
+                runMain {
+                    mMutableSurahCollection.value = collection.copy(progress = 0)
+                }
 
-            runMain {
-                mMutableSurahCollection.value = mMutableSurahCollection.value?.copy(name = it.payload.toString())
-            }
+                if (mIsPendingSurahCollection) {
+                    mIsPendingSurahCollection = false
 
-            if (mIsPendingSurahCollection) {
-                mIsPendingSurahCollection = false
-                mIsPendingSurahListSize = true
-                repository.send(TOPIC_SURAH_LIST_SIZE, Message.Action.Get, Value(0))
-            }
-        }
-
-        repository.onTopic(TOPIC_SURAH_LIST_SIZE) {
-            if (it.senderId != Message.SERVER_ID) {
-                return@onTopic
-            }
-
-            if (!it.payload.isNumber()) {
-                return@onTopic
-            }
-
-            runMain {
-                mMutableSurahCollection.value = mMutableSurahCollection.value?.copy(
-                    total = it.payload.toInt(),
-                    progress = 0
-                )
-            }
-
-            if (mIsPendingSurahListSize) {
-                mIsPendingSurahListSize = false
-                mMutableIsUpdatingSurahCollection.value = true
-
-                repository.send(TOPIC_SURAH_LIST, Message.Action.Get, Value(0))
-
-                mMutableSurahCollection.value?.let { collection ->
                     CoroutineScope(Dispatchers.IO).launch {
                         if (collection != Config.collection) {
-                            Config.updateCollection(collection.name, collection.total, collection.progress)
+                            Config.updateCollection(collection.name, collection.size, collection.progress)
                             AppDatabase.getInstance().surahDao.deleteAll()
+
                             repository.send(TOPIC_SURAH_LIST, Message.Action.Get, Value(0))
+                            runMain {
+                                mMutableIsUpdatingSurahCollection.value = true
+                            }
                         }
                     }
                 }
@@ -409,7 +384,6 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private var mIsPendingSurahCollection = false
-    private var mIsPendingSurahListSize = false
 
     companion object {
         private const val TOPIC_DEVICE = "device"
@@ -427,7 +401,6 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
         private const val TOPIC_SETTING_GROUP = "setting-group"
         private const val TOPIC_SETTING_ALL = "setting-all"
         private const val TOPIC_SURAH_LIST = "surah-list"
-        private const val TOPIC_SURAH_LIST_SIZE = "surah-list-size"
         private const val TOPIC_SURAH_COLLECTION = "surah-collection"
         private const val TOPIC_SURAH_PREVIEW = "surah-preview"
         private const val TOPIC_SURAH_ONGOING = "surah-ongoing"
