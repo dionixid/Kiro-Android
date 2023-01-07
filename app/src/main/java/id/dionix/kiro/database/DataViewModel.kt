@@ -313,7 +313,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
 
                     CoroutineScope(Dispatchers.IO).launch {
                         if (collection != Config.collection) {
-                            Config.updateCollection(collection.name, collection.size, collection.progress)
+                            Config.updateCollection(collection.name, collection.totalSize, collection.progress)
                             AppDatabase.getInstance().surahDao.deleteAll()
 
                             repository.send(TOPIC_SURAH_LIST, Message.Action.Get, Value(0))

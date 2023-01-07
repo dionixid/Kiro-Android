@@ -77,7 +77,7 @@ object Config {
 
     fun updateCollection(
         name: String = collection.name,
-        total: Int = collection.size,
+        total: Int = collection.totalSize,
         progress: Int = collection.progress
     ) {
         collection = SurahCollection(name, total, progress)
