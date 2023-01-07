@@ -13,7 +13,6 @@ import id.dionix.kiro.utility.secondsToTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -80,19 +79,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun sendQiroGroup(qiroGroup: QiroGroup) {
-        repository.send(
-            when (qiroGroup.dayOfWeek) {
-                DayOfWeek.MONDAY -> TOPIC_QIRO_MONDAY
-                DayOfWeek.TUESDAY -> TOPIC_QIRO_TUESDAY
-                DayOfWeek.WEDNESDAY -> TOPIC_QIRO_WEDNESDAY
-                DayOfWeek.THURSDAY -> TOPIC_QIRO_THURSDAY
-                DayOfWeek.FRIDAY -> TOPIC_QIRO_FRIDAY
-                DayOfWeek.SATURDAY -> TOPIC_QIRO_SATURDAY
-                else -> TOPIC_QIRO_SUNDAY
-            },
-            Message.Action.Set,
-            Value(qiroGroup)
-        )
+        repository.send(TOPIC_QIRO_GROUP, Message.Action.Set, Value(qiroGroup))
     }
 
     fun sendSettingGroup(settingGroup: SettingGroup) {
@@ -202,13 +189,31 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_QIRO_SUNDAY, ::onQiroGroup)
-        repository.onTopic(TOPIC_QIRO_MONDAY, ::onQiroGroup)
-        repository.onTopic(TOPIC_QIRO_TUESDAY, ::onQiroGroup)
-        repository.onTopic(TOPIC_QIRO_WEDNESDAY, ::onQiroGroup)
-        repository.onTopic(TOPIC_QIRO_THURSDAY, ::onQiroGroup)
-        repository.onTopic(TOPIC_QIRO_FRIDAY, ::onQiroGroup)
-        repository.onTopic(TOPIC_QIRO_SATURDAY, ::onQiroGroup)
+        repository.onTopic(TOPIC_QIRO_GROUP) { message ->
+            if (message.senderId != Message.SERVER_ID) {
+                return@onTopic
+            }
+
+            val group = message.payload.toObject { QiroGroup() }
+            if (group.isValid) {
+                runMain {
+                    val groups = mMutableQiroGroups.value?.toMutableList()
+                    if (groups == null) {
+                        mMutableQiroGroups.value = listOf(group)
+                    } else {
+                        val idx = groups.indexOfFirst { it.dayOfWeek == group.dayOfWeek }
+                        if (idx == -1) {
+                            groups.add(group)
+                        } else {
+                            groups[idx] = group
+                        }
+
+                        groups.sortBy { it.dayOfWeek }
+                        mMutableQiroGroups.value = groups
+                    }
+                }
+            }
+        }
 
         repository.onTopic(TOPIC_QIRO_ONGOING) {
             if (it.senderId != Message.SERVER_ID) {
@@ -357,32 +362,6 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun onQiroGroup(message: Message) {
-        if (message.senderId != Message.SERVER_ID) {
-            return
-        }
-
-        val group = message.payload.toObject { QiroGroup() }
-        if (group.isValid) {
-            runMain {
-                val groups = mMutableQiroGroups.value?.toMutableList()
-                if (groups == null) {
-                    mMutableQiroGroups.value = listOf(group)
-                } else {
-                    val idx = groups.indexOfFirst { it.dayOfWeek == group.dayOfWeek }
-                    if (idx == -1) {
-                        groups.add(group)
-                    } else {
-                        groups[idx] = group
-                    }
-
-                    groups.sortBy { it.dayOfWeek }
-                    mMutableQiroGroups.value = groups
-                }
-            }
-        }
-    }
-
     private var mIsPendingSurahCollection = false
 
     companion object {
@@ -390,13 +369,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
         private const val TOPIC_PRAYER_GROUP = "prayer-group"
         private const val TOPIC_PRAYER_OFFSET = "prayer-offset"
         private const val TOPIC_PRAYER_ONGOING = "prayer-ongoing"
-        private const val TOPIC_QIRO_SUNDAY = "qiro-sunday"
-        private const val TOPIC_QIRO_MONDAY = "qiro-monday"
-        private const val TOPIC_QIRO_TUESDAY = "qiro-tuesday"
-        private const val TOPIC_QIRO_WEDNESDAY = "qiro-wednesday"
-        private const val TOPIC_QIRO_THURSDAY = "qiro-thursday"
-        private const val TOPIC_QIRO_FRIDAY = "qiro-friday"
-        private const val TOPIC_QIRO_SATURDAY = "qiro-saturday"
+        private const val TOPIC_QIRO_GROUP = "qiro-group"
         private const val TOPIC_QIRO_ONGOING = "qiro-ongoing"
         private const val TOPIC_SETTING_GROUP = "setting-group"
         private const val TOPIC_SETTING_ALL = "setting-all"
