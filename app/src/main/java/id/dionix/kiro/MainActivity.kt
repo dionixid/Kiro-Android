@@ -148,10 +148,10 @@ class MainActivity : AppCompatActivity() {
 
         mDataViewModel.surahPreview.observe(this) { audio ->
             mAudioPreview = audio
-            if (audio == null) {
-                hideSurahPreview()
-            } else {
+            if (audio.isPlaying) {
                 showSurahPreview()
+            } else {
+                hideSurahPreview()
             }
         }
 

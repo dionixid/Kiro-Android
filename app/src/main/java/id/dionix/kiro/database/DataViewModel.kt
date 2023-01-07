@@ -44,8 +44,8 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
     private val mMutableSurahOngoing = MutableLiveData(SurahAudio())
     val surahOngoing: LiveData<SurahAudio> get() = mMutableSurahOngoing
 
-    private val mMutableSurahPreview = MutableLiveData<SurahAudio?>(null)
-    val surahPreview: LiveData<SurahAudio?> = mMutableSurahPreview
+    private val mMutableSurahPreview = MutableLiveData<SurahAudio>(SurahAudio())
+    val surahPreview: LiveData<SurahAudio> = mMutableSurahPreview
 
     private val mMutableSettingGroups = MutableLiveData(listOf<SettingGroup>())
     val settingGroups: LiveData<List<SettingGroup>> = mMutableSettingGroups
@@ -284,8 +284,6 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
                 runMain {
                     mMutableSurahPreview.value = audio
                 }
-            } else {
-                mMutableSurahPreview.value = null
             }
         }
 

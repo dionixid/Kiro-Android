@@ -122,26 +122,21 @@ class AudioPreviewDialog(
             value = mAudio.volume.toFloat()
         }
 
-        mDataViewModel.surahPreview.observe(viewLifecycleOwner) {
-            it?.let { audio ->
-                if (audio.id != mAudio.id) {
-                    return@observe
-                }
-
-                mAudio.volume = audio.volume
-                mAudio.isPlaying = audio.isPlaying
-                mAudio.isPaused = audio.isPaused
-
-                tryRun {
-                    mBinding.slider.value = audio.volume.toFloat()
-                }
-
-                mIsPlaying = audio.isPlaying
-                mIsPaused = audio.isPaused
-            } ?: kotlin.run {
-                mIsPlaying = false
-                mIsPaused = false
+        mDataViewModel.surahPreview.observe(viewLifecycleOwner) { audio ->
+            if (audio.id != mAudio.id) {
+                return@observe
             }
+
+            mAudio.volume = audio.volume
+            mAudio.isPlaying = audio.isPlaying
+            mAudio.isPaused = audio.isPaused
+
+            tryRun {
+                mBinding.slider.value = audio.volume.toFloat()
+            }
+
+            mIsPlaying = audio.isPlaying
+            mIsPaused = audio.isPaused
         }
 
         mBinding.cvPlay.scaleOnClick {
