@@ -174,6 +174,9 @@ object UDP {
                     }
                     counter.decrement()
                     if (counter.value == 0) {
+                        if (!addresses.contains(gateway)) {
+                            addresses.add(gateway)
+                        }
                         callback?.invoke(addresses)
                     }
                 }
