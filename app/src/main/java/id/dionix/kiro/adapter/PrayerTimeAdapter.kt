@@ -77,11 +77,11 @@ class PrayerTimeAdapter(
             }
             is PrayerViewHolder -> {
                 holder.prayerQiro = when (position) {
-                    0 -> mGroup.fajr
-                    1 -> mGroup.dhuhr
-                    2 -> mGroup.asr
-                    3 -> mGroup.maghrib
-                    4 -> mGroup.isha
+                    1 -> mGroup.fajr
+                    2 -> mGroup.dhuhr
+                    3 -> mGroup.asr
+                    4 -> mGroup.maghrib
+                    5 -> mGroup.isha
                     else -> PrayerQiro()
                 }
             }
