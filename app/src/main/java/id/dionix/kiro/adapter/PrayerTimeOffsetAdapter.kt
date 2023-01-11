@@ -9,8 +9,7 @@ import com.codedillo.numberpicker.NumberPicker
 import id.dionix.kiro.R
 import id.dionix.kiro.databinding.ItemPrayerTimeOffsetBinding
 import id.dionix.kiro.model.PrayerTimeOffset
-import id.dionix.kiro.utility.dip
-import id.dionix.kiro.utility.dp
+import id.dionix.kiro.utility.*
 
 class PrayerTimeOffsetAdapter(
     prayerTimeOffset: PrayerTimeOffset,
@@ -52,7 +51,7 @@ class PrayerTimeOffsetAdapter(
             value.min = -30f
             value.count = 61
         }
-        
+
         init {
             val context = mBinding.root.context
             numberSet.apply {
@@ -120,18 +119,21 @@ class PrayerTimeOffsetAdapter(
                 }
             }
 
-            numberSet.value.setValue(
-                when (adapterPosition) {
-                    0 -> mPrayerTimeOffset.fajr.toFloat()
-                    1 -> mPrayerTimeOffset.dhuhr.toFloat()
-                    2 -> mPrayerTimeOffset.asr.toFloat()
-                    3 -> mPrayerTimeOffset.maghrib.toFloat()
-                    4 -> mPrayerTimeOffset.isha.toFloat()
-                    else -> 0f
-                }
-            )
+            mBinding.numberPicker.post {
+                numberSet.value.setValue(
+                    when (adapterPosition) {
+                        0 -> mPrayerTimeOffset.fajr.toFloat()
+                        1 -> mPrayerTimeOffset.dhuhr.toFloat()
+                        2 -> mPrayerTimeOffset.asr.toFloat()
+                        3 -> mPrayerTimeOffset.maghrib.toFloat()
+                        4 -> mPrayerTimeOffset.isha.toFloat()
+                        else -> 0f
+                    }
+                )
+            }
+
         }
-        
+
     }
 
 }
