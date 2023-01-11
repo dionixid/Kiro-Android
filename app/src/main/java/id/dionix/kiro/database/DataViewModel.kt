@@ -334,7 +334,6 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
 
                     CoroutineScope(Dispatchers.IO).launch {
                         if (collection != Config.collection) {
-                            Config.updateCollection(collection.name, collection.totalSize, collection.progress)
                             AppDatabase.getInstance().surahDao.deleteAll()
 
                             mRepository.send(TOPIC_SURAH_LIST, Message.Action.Get, Value(0))
@@ -369,10 +368,18 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
 
             runMain {
                 val surahCollection = mMutableSurahCollection.value ?: SurahCollection()
-                mMutableSurahCollection.value = surahCollection.copy(progress = surahCollection.progress + surahList.size)
+                mMutableSurahCollection.value =
+                    surahCollection.copy(progress = surahCollection.progress + surahList.size)
 
                 if (mMutableSurahCollection.value?.isFinished == true) {
                     mMutableIsUpdatingSurahCollection.value = false
+                    mMutableSurahCollection.value?.let { collection ->
+                        Config.updateCollection(
+                            collection.name,
+                            collection.totalSize,
+                            collection.progress
+                        )
+                    }
                 }
             }
         }
