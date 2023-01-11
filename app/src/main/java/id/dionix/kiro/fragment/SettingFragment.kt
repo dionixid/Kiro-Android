@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import id.dionix.kiro.R
@@ -14,12 +14,10 @@ import id.dionix.kiro.adapter.SettingAdapter
 import id.dionix.kiro.database.DataViewModel
 import id.dionix.kiro.databinding.FragmentSettingBinding
 import id.dionix.kiro.dialog.*
+import id.dionix.kiro.model.Notification
 import id.dionix.kiro.model.Setting
 import id.dionix.kiro.model.SettingGroup
-import id.dionix.kiro.utility.Config
-import id.dionix.kiro.utility.dip
-import id.dionix.kiro.utility.dp
-import id.dionix.kiro.utility.scaleOnClick
+import id.dionix.kiro.utility.*
 
 class SettingFragment : Fragment() {
 
@@ -27,8 +25,9 @@ class SettingFragment : Fragment() {
 
     private var settingGroups = listOf<SettingGroup>()
     private var mIsOpenDialog = false
+    private var mIsWaitingResponse = false
 
-    private val mDataViewModel by viewModels<DataViewModel>()
+    private val mDataViewModel by activityViewModels<DataViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,7 +63,15 @@ class SettingFragment : Fragment() {
                             group.name,
                             setting,
                             onSave = { newValue ->
-                                mDataViewModel.sendSettingGroup(group.copy(settings = listOf(newValue)))
+                                mIsWaitingResponse = true
+                                mResponseTimer.start()
+                                mDataViewModel.sendSettingGroup(
+                                    group.copy(
+                                        settings = listOf(
+                                            newValue
+                                        )
+                                    )
+                                )
                             },
                             onDismiss = {
                                 mIsOpenDialog = false
@@ -93,6 +100,8 @@ class SettingFragment : Fragment() {
                             time,
                             date,
                             onSave = { newTime, newDate ->
+                                mIsWaitingResponse = true
+                                mResponseTimer.start()
                                 mDataViewModel.sendSettingGroup(
                                     dateTimeGroup.copy(settings = listOf(newTime, newDate))
                                 )
@@ -123,6 +132,8 @@ class SettingFragment : Fragment() {
                             ssid,
                             password,
                             onSave = { newSsid, newPassword ->
+                                mIsWaitingResponse = true
+                                mResponseTimer.start()
                                 mDataViewModel.sendSettingGroup(
                                     wifiGroup.copy(settings = listOf(newSsid, newPassword))
                                 )
@@ -160,8 +171,16 @@ class SettingFragment : Fragment() {
                             longitude,
                             elevation,
                             onSave = { newLatitude, newLongitude, newElevation ->
+                                mIsWaitingResponse = true
+                                mResponseTimer.start()
                                 mDataViewModel.sendSettingGroup(
-                                    locationGroup.copy(settings = listOf(newLatitude, newLongitude, newElevation))
+                                    locationGroup.copy(
+                                        settings = listOf(
+                                            newLatitude,
+                                            newLongitude,
+                                            newElevation
+                                        )
+                                    )
                                 )
                             },
                             onDismiss = {
@@ -197,14 +216,22 @@ class SettingFragment : Fragment() {
         mDataViewModel.settingGroups.observe(viewLifecycleOwner) {
             settingGroups = it
             settingAdapter.setSettingGroups(it)
+
+            if (mIsWaitingResponse) {
+                mIsWaitingResponse = false
+                mResponseTimer.cancel()
+                mDataViewModel.setNotification(
+                    Notification(getString(R.string.data_has_been_saved_successfully))
+                )
+            }
         }
 
         settingAdapter.setActions(
             listOf(
                 SettingAdapter.Action(
                     tag = "connection",
-                    label = "Disconnect",
-                    color = requireContext().getColor(R.color.red)
+                    label = getString(R.string.disconnect),
+                    color = requireContext().getColor(R.color.secondary)
                 ) {
                     Config.resetDevice()
                     mDataViewModel.leave()
@@ -212,8 +239,26 @@ class SettingFragment : Fragment() {
             )
         )
 
+        mDataViewModel.isConnected.observe(viewLifecycleOwner) {
+            settingAdapter.setAction(
+                SettingAdapter.Action(
+                    tag = "connection",
+                    label = getString(if (it) R.string.disconnect else R.string.connect),
+                    color = requireContext().getColor(if (it) R.color.red else R.color.secondary)
+                ) {
+                    if (it) {
+                        Config.resetDevice()
+                        mDataViewModel.leave()
+                    } else {
+                        mDataViewModel.rejoin()
+                    }
+                }
+            )
+        }
+
         mBinding.recyclerView.apply {
             adapter = settingAdapter
+            itemAnimator = null
             addOnScrollListener(object : OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     when {
@@ -229,6 +274,14 @@ class SettingFragment : Fragment() {
         }
 
         return mBinding.root
+    }
+
+    private val mResponseTimer = makeTimer(5000) {
+        mIsWaitingResponse = false
+        mDataViewModel.setNotification(Notification(
+            getString(R.string.cannot_connect_to_device),
+            true
+        ))
     }
 
 }
