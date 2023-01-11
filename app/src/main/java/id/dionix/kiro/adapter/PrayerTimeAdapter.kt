@@ -132,18 +132,6 @@ class PrayerTimeAdapter(
                     context.getString(R.string.invalid_time)
                 }
 
-                mBinding.cvQiroTime.setCardBackgroundColor(
-                    context.getColor(
-                        when (value.prayer.name) {
-                            Prayer.Name.Asr,
-                            Prayer.Name.Maghrib,
-                            -> R.color.red
-
-                            else -> R.color.yellow
-                        }
-                    )
-                )
-
                 if (value.qiro.surahList.isNotEmpty()) {
                     CoroutineScope(Dispatchers.IO).launch {
                         val name = ContentResolver.getSurahProperties(
