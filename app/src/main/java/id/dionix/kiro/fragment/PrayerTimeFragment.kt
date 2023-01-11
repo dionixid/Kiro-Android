@@ -17,8 +17,10 @@ import id.dionix.kiro.databinding.FragmentPrayerTimeBinding
 import id.dionix.kiro.dialog.ConfirmationDialog
 import id.dionix.kiro.dialog.DeviceDialog
 import id.dionix.kiro.dialog.PrayerTimeDialog
+import id.dionix.kiro.model.Notification
 import id.dionix.kiro.utility.dip
 import id.dionix.kiro.utility.format
+import id.dionix.kiro.utility.makeTimer
 import id.dionix.kiro.utility.scaleOnClick
 import java.time.LocalDate
 
@@ -27,6 +29,8 @@ class PrayerTimeFragment : Fragment() {
     private lateinit var mBinding: FragmentPrayerTimeBinding
 
     private var mIsOpenDialog = false
+    private var mIsWaitingResponse = false
+    private var mIsStopping = false
 
     private val mDataViewModel by activityViewModels<DataViewModel>()
 
@@ -73,7 +77,7 @@ class PrayerTimeFragment : Fragment() {
 
         val prayerTimeAdapter = PrayerTimeAdapter(
             onForceStop = {
-                if (!mIsOpenDialog) {
+                if (!mIsOpenDialog && !mIsStopping) {
                     mIsOpenDialog = true
 
                     ConfirmationDialog(
@@ -82,6 +86,8 @@ class PrayerTimeFragment : Fragment() {
                         getString(R.string.stop),
                         requireContext().getColor(R.color.red),
                         onConfirm = {
+                            mIsStopping = true
+                            mStoppingTimer.start()
                             mDataViewModel.sendSurahForceStopCommand()
                         },
                         onDismiss = {
@@ -91,12 +97,14 @@ class PrayerTimeFragment : Fragment() {
                 }
             },
             onItemSelected = {
-                if (!mIsOpenDialog) {
+                if (!mIsOpenDialog && !mIsWaitingResponse) {
                     mIsOpenDialog = true
 
                     PrayerTimeDialog(
                         it,
                         onSave = { offset ->
+                            mIsWaitingResponse = true
+                            mResponseTimer.start()
                             mDataViewModel.sendPrayerTimeOffset(offset)
                         },
                         onDismiss = {
@@ -113,6 +121,14 @@ class PrayerTimeFragment : Fragment() {
 
         mDataViewModel.prayerGroup.observe(viewLifecycleOwner) {
             prayerTimeAdapter.setPrayerGroup(it)
+
+            if (mIsWaitingResponse) {
+                mIsWaitingResponse = false
+                mResponseTimer.cancel()
+                mDataViewModel.setNotification(
+                    Notification(getString(R.string.data_has_been_saved_successfully))
+                )
+            }
         }
 
         mDataViewModel.prayerOngoing.observe(viewLifecycleOwner) {
@@ -121,6 +137,14 @@ class PrayerTimeFragment : Fragment() {
 
         mDataViewModel.qiroOngoing.observe(viewLifecycleOwner) {
             prayerTimeAdapter.setOngoingQiro(it)
+
+            if (mIsStopping) {
+                mIsStopping = false
+                mStoppingTimer.cancel()
+                mDataViewModel.setNotification(
+                    Notification(getString(R.string.playlist_stopped_successfully))
+                )
+            }
         }
 
         mDataViewModel.qiroGroups.observe(viewLifecycleOwner) {
@@ -175,6 +199,26 @@ class PrayerTimeFragment : Fragment() {
         }
 
         return mBinding.root
+    }
+
+    private val mResponseTimer = makeTimer(5000) {
+        mIsWaitingResponse = false
+        mDataViewModel.setNotification(
+            Notification(
+                getString(R.string.cannot_connect_to_device),
+                true
+            )
+        )
+    }
+
+    private val mStoppingTimer = makeTimer(5000) {
+        mIsStopping = false
+        mDataViewModel.setNotification(
+            Notification(
+                getString(R.string.cannot_connect_to_device),
+                true
+            )
+        )
     }
 
 }
