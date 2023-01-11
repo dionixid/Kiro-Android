@@ -114,6 +114,7 @@ class DeviceDialog(
 
         isRefreshing = true
         scanWiFi()
+        scanLocal()
 
         return mBinding.root
     }
