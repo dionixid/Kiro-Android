@@ -62,15 +62,21 @@ class DataRepository : DefaultLifecycleObserver {
 
     init {
         mDevice.onJoin {
-            mMutableIsConnected.value = true
+            runMain {
+                mMutableIsConnected.value = true
+            }
         }
 
         mDevice.onLeave {
-            mMutableIsConnected.value = false
+            runMain {
+                mMutableIsConnected.value = false
+            }
         }
 
         mDevice.onAuth {
-            mMutableIsAuthenticated.value = it
+            runMain {
+                mMutableIsAuthenticated.value = it
+            }
         }
     }
 
