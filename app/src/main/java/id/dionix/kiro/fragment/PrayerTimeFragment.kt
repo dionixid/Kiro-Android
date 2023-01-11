@@ -148,6 +148,12 @@ class PrayerTimeFragment : Fragment() {
             }
         }
 
+        mDataViewModel.isConnected.observe(viewLifecycleOwner) { isConnected ->
+            mDataViewModel.device.value?.let {
+                mBinding.ivErrorNotConnected.visibility = if (isConnected) View.GONE else View.VISIBLE
+            }
+        }
+
         mBinding.recyclerView.apply {
             adapter = prayerTimeAdapter
             setHasFixedSize(true)
