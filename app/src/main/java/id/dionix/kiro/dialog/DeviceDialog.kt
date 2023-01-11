@@ -44,7 +44,6 @@ class DeviceDialog(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dialog?.window?.requestFeature(Window.FEATURE_NO_TITLE)
-        UDP.rebind()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
