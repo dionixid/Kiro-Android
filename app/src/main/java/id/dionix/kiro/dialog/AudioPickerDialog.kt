@@ -182,6 +182,7 @@ class AudioPickerDialog(
         mBinding.rvLastResult.apply {
             adapter = searchAdapter
             layoutManager = FlexboxLayoutManager(requireContext())
+            itemAnimator = null
 
             post {
                 mBinding.marginSlider.maxMargin = if (measuredWidth > 0) {
