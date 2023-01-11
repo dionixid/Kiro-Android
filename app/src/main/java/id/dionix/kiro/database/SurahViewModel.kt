@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import id.dionix.kiro.model.SurahProperties
-import id.dionix.kiro.utility.runMain
+import id.dionix.kiro.utility.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,16 +29,16 @@ class SurahViewModel(application: Application) : AndroidViewModel(application) {
         return repository.size()
     }
 
-    private val mMutableSearchResults = MutableLiveData(listOf<SurahProperties>())
+    private val mMutableSearchResults: MutableLiveData<List<SurahProperties>> = MutableLiveData(listOf())
     val searchResults: LiveData<List<SurahProperties>> = mMutableSearchResults
 
     fun filter(pattern: String) {
         if (pattern.isBlank()) {
             CoroutineScope(Dispatchers.IO).launch {
-                val allSurah = allSurah.value
-
-                runMain {
-                    mMutableSearchResults.value = allSurah
+                allSurah.value?.let { list ->
+                    runMain {
+                        mMutableSearchResults.value = list
+                    }
                 }
             }
             return
