@@ -1,21 +1,24 @@
 package id.dionix.kiro.fragment
 
-import android.os.Build
+import android.net.ConnectivityManager
+import android.net.ConnectivityManager.NetworkCallback
+import android.net.LinkProperties
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import id.dionix.kiro.R
 import id.dionix.kiro.database.DataViewModel
 import id.dionix.kiro.databinding.FragmentDeviceConnectionBinding
 import id.dionix.kiro.dialog.DeviceAuthenticationDialog
-import id.dionix.kiro.utility.Config
-import id.dionix.kiro.utility.WiFi
-import id.dionix.kiro.utility.makeTimer
-import id.dionix.kiro.utility.scaleOnClick
+import id.dionix.kiro.model.Notification
+import id.dionix.kiro.utility.*
 
 class DeviceConnectionFragment(
     name: String,
@@ -33,7 +36,9 @@ class DeviceConnectionFragment(
     private var mIsOpenDialog = false
     private var mAuthenticationDialog: DeviceAuthenticationDialog? = null
 
-    private val mDataViewModel by viewModels<DataViewModel>()
+    private val mDataViewModel by activityViewModels<DataViewModel>()
+
+    private var mPassword = ""
 
     private var mIsConnecting = false
         set(value) {
@@ -77,72 +82,102 @@ class DeviceConnectionFragment(
 
                 when (type) {
                     ConnectionType.WIFI -> {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            WiFi.connect(mName, mAddress, "") { success ->
-                                if (success && !mIsOpenDialog) {
-                                    mIsOpenDialog = true
+                        if (!mIsOpenDialog) {
+                            mIsOpenDialog = true
 
-                                    DeviceAuthenticationDialog(
-                                        onConnect = { dialog, password ->
-                                            mIsConnecting = true
-                                            dialog.isConnecting = true
-                                            Config.updateDevice(key = password, isLocal = true)
-                                            mAuthTimer.start()
-                                            mDataViewModel.setServer("192.168.4.1", 80)
-                                            mDataViewModel.join(password)
-                                        },
-                                        onDismiss = {
-                                            mIsOpenDialog = false
-                                        }
-                                    )
-                                }
-                            }
-                        } else {
-                            if (!mIsOpenDialog) {
-                                mIsOpenDialog = true
+                            mAuthenticationDialog = DeviceAuthenticationDialog(
+                                onConnect = { dialog, password ->
+                                    dialog.isConnecting = true
+                                    mPassword = password
 
-                                DeviceAuthenticationDialog(
-                                    onConnect = { dialog, password ->
-                                        dialog.isConnecting = true
-
-                                        WiFi.connect(mName, mAddress, password) { success ->
+                                    WiFi.connect(
+                                        mName,
+                                        mAddress,
+                                        password,
+                                        onResult = { success, network ->
                                             if (success) {
                                                 mIsConnecting = true
-                                                Config.updateDevice(key = password, isLocal = true)
+                                                dialog.dismiss()
+
+                                                Config.updateDevice(
+                                                    key = password,
+                                                    isLocal = true,
+                                                    ip = "192.168.4.1"
+                                                )
+
                                                 mAuthTimer.start()
                                                 mDataViewModel.setServer("192.168.4.1", 80)
+                                                mDataViewModel.bind(network)
                                                 mDataViewModel.join(password)
                                             } else {
                                                 dialog.isConnecting = false
+                                                SingleToast.show(getString(R.string.cannot_connect_to_device))
                                             }
+                                        },
+                                        onLost = {
+                                            mDataViewModel.setNotification(
+                                                Notification(
+                                                    getString(R.string.device_connection_lost),
+                                                    true
+                                                )
+                                            )
+                                            mDataViewModel.bind(null)
                                         }
-                                    },
-                                    onDismiss = {
-                                        mIsOpenDialog = false
-                                    }
-                                )
-                            }
+                                    )
+                                },
+                                onDismiss = {
+                                    mIsOpenDialog = false
+                                }
+                            )
+                            mAuthenticationDialog?.show(
+                                requireActivity().supportFragmentManager,
+                                "dialog_authentication"
+                            )
                         }
                     }
                     else -> {
                         if (!mIsOpenDialog) {
                             mIsOpenDialog = true
 
-                            DeviceAuthenticationDialog(
+                            mAuthenticationDialog = DeviceAuthenticationDialog(
                                 onConnect = { dialog, password ->
                                     mIsConnecting = true
                                     dialog.isConnecting = true
+                                    mPassword = password
+
                                     Config.updateDevice(
                                         key = password,
-                                        isLocal = type != ConnectionType.INTERNET
+                                        isLocal = type != ConnectionType.INTERNET,
+                                        ip = mAddress
                                     )
+
                                     mAuthTimer.start()
-                                    mDataViewModel.setServer(mAddress, 80)
-                                    mDataViewModel.join(password)
+
+                                    val connectivityManager =
+                                        requireContext().getSystemService(ConnectivityManager::class.java)
+
+                                    tryRun {
+                                        connectivityManager.unregisterNetworkCallback(
+                                            mNetworkCallback
+                                        )
+                                    }
+
+                                    tryRun {
+                                        connectivityManager.registerNetworkCallback(
+                                            NetworkRequest.Builder()
+                                                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                                                .build(),
+                                            mNetworkCallback
+                                        )
+                                    }
                                 },
                                 onDismiss = {
                                     mIsOpenDialog = false
                                 }
+                            )
+                            mAuthenticationDialog?.show(
+                                requireActivity().supportFragmentManager,
+                                "dialog_authentication"
                             )
                         }
                     }
@@ -177,11 +212,26 @@ class DeviceConnectionFragment(
             mBinding.tvAddress.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11f)
         }
 
-        mIsConnected = WiFi.isConnected(mName)
+        WiFi.isConnected(mName) {
+            mIsConnected = it
+        }
         return mBinding.root
     }
 
-    private val mAuthTimer = makeTimer(10000) {
+    override fun onPause() {
+        super.onPause()
+        mAuthTimer.cancel()
+    }
+
+    private val mNetworkCallback = object : NetworkCallback() {
+        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+            mDataViewModel.bind(network)
+            mDataViewModel.setServer(mAddress, 80)
+            mDataViewModel.join(mPassword)
+        }
+    }
+
+    private val mAuthTimer = makeTimer(15000) {
         mIsConnecting = false
         mAuthenticationDialog?.isConnecting = false
     }
