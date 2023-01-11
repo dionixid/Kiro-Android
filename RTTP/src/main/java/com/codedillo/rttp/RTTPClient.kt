@@ -31,6 +31,7 @@ class RTTPClient(
 
     private lateinit var mClient: WebSocket
     private var mNetwork: Network? = null
+
     private val mFactory: WebSocketFactory
         get() {
             return mNetwork?.let {
@@ -78,7 +79,9 @@ class RTTPClient(
 
     fun bind(network: Network?) {
         mNetwork = network
-        join(mChannel.name, mSecret)
+        if (mIsAutoConnect) {
+            join(mChannel.name, mSecret)
+        }
     }
 
     /**
