@@ -2,6 +2,7 @@ package id.dionix.kiro.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import id.dionix.kiro.databinding.ItemSearchResultBinding
 import id.dionix.kiro.model.SurahProperties
@@ -16,8 +17,26 @@ class SearchResultAdapter(
     private var mItems: List<SurahProperties> = listOf()
 
     fun setSurahList(surahProperties: List<SurahProperties>) {
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int {
+                return mItems.size
+            }
+
+            override fun getNewListSize(): Int {
+                return surahProperties.size
+            }
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return mItems[oldItemPosition].id == surahProperties[newItemPosition].id
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return mItems[oldItemPosition] == surahProperties[newItemPosition]
+            }
+        })
+
         mItems = surahProperties.map { it.copy() }
-        notifyItemRangeChanged(0, mItems.size)
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
