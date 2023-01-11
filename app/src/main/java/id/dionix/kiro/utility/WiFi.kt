@@ -1,38 +1,35 @@
 package id.dionix.kiro.utility
 
 import android.content.Context
+import android.net.Network
 import android.net.wifi.ScanResult
-import com.thanosfisherman.wifiutils.WifiConnectorBuilder.WifiUtilsBuilder
-import com.thanosfisherman.wifiutils.WifiUtils
-import com.thanosfisherman.wifiutils.wifiConnect.ConnectionErrorCode
-import com.thanosfisherman.wifiutils.wifiConnect.ConnectionSuccessListener
-import com.thanosfisherman.wifiutils.wifiDisconnect.DisconnectionErrorCode
-import com.thanosfisherman.wifiutils.wifiDisconnect.DisconnectionSuccessListener
+import com.codedillo.wifiutils.WiFiUtils
 
 object WiFi {
     private const val BSSID_ID = "52:4F:58"
-    private lateinit var wifiUtils: WifiUtilsBuilder
-
-    val isConnected: Boolean get() = wifiUtils.isWifiConnected
 
     fun initialize(context: Context) {
-        wifiUtils = WifiUtils.withContext(context)
+        WiFiUtils.initialize(context)
     }
 
-    fun isConnected(ssid: String): Boolean {
-        return wifiUtils.isWifiConnected(ssid)
+    fun isConnected(ssid: String, onResult: (isConnected: Boolean) -> Unit) {
+        WiFiUtils.isConnected(ssid) {
+            runMain {
+                onResult(it)
+            }
+        }
     }
 
-    fun enableWiFi(listener: (isSuccess: Boolean) -> Unit) {
-        wifiUtils.enableWifi(listener)
+    fun enableWiFi(listener: (isEnabled: Boolean) -> Unit) {
+        WiFiUtils.enable(listener)
     }
 
-    fun disableWiFi() {
-        wifiUtils.disableWifi()
+    fun disableWiFi(listener: (isEnabled: Boolean) -> Unit) {
+        WiFiUtils.disable(listener)
     }
 
     fun scan(listener: (results: List<ScanResult>) -> Unit) {
-        wifiUtils.scanWifi { results ->
+        WiFiUtils.scan { results ->
             listener(
                 results.filter {
                     it.BSSID.trim()
@@ -41,47 +38,48 @@ object WiFi {
                         .startsWith(BSSID_ID)
                 }
             )
-        }.start()
+        }
     }
 
     fun connect(
         ssid: String,
         mac: String,
         password: String,
-        listener: (isSuccess: Boolean) -> Unit
+        onResult: (isSuccess: Boolean, network: Network?) -> Unit,
+        onLost: () -> Unit
     ) {
-        wifiUtils.connectWith(ssid, mac, password)
-            .setTimeout(30000)
-            .onConnectionResult(object : ConnectionSuccessListener {
-                override fun success() {
-                    listener(true)
+        WiFiUtils.connect(
+            ssid,
+            mac,
+            password,
+            onSuccess = {
+                runMain {
+                    onResult(true, it)
                 }
-
-                override fun failed(errorCode: ConnectionErrorCode) {
-                    listener(false)
+            },
+            onFailure = {
+                runMain {
+                    onResult(false, null)
                 }
-            })
-            .start()
+            },
+            onLost = {
+                runMain {
+                    onLost()
+                }
+            }
+        )
     }
 
-    fun disconnect(listener: (isSuccess: Boolean) -> Unit = {}) {
-        wifiUtils.disconnect(object : DisconnectionSuccessListener {
-            override fun success() {
-                listener(true)
-            }
-
-            override fun failed(errorCode: DisconnectionErrorCode) {
-                listener(false)
-            }
-        })
+    fun disconnect() {
+        WiFiUtils.disconnect()
     }
 
     fun enableLog() {
-        WifiUtils.enableLog(true)
+        WiFiUtils.setDebugEnabled(true)
     }
 
     fun disableLog() {
-        WifiUtils.enableLog(false)
+        WiFiUtils.setDebugEnabled(false)
     }
 
 }
