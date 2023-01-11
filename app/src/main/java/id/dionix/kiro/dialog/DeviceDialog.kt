@@ -106,6 +106,7 @@ class DeviceDialog(
         mBinding.cvRefresh.scaleOnClick {
             if (!isRefreshing) {
                 isRefreshing = true
+                mRefreshTimer.start()
                 devices.clear()
                 scanWiFi()
                 scanLocal()
@@ -113,6 +114,7 @@ class DeviceDialog(
         }
 
         isRefreshing = true
+        mRefreshTimer.start()
         scanWiFi()
         scanLocal()
 
@@ -129,6 +131,7 @@ class DeviceDialog(
             deviceAdapter.setDevices(devices)
         }
         isRefreshing = false
+        mRefreshTimer.cancel()
     }
 
     private fun scanWiFi() {
@@ -183,6 +186,10 @@ class DeviceDialog(
                 updateDevices()
             }
         }
+    }
+
+    private val mRefreshTimer = makeTimer(15000) {
+        isRefreshing = false
     }
 
     private val ViewPager2.deviceConnectionAdapter: DeviceConnectionAdapter get() = adapter as DeviceConnectionAdapter
