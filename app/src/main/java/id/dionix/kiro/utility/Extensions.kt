@@ -82,6 +82,18 @@ fun LocalDate.format(pattern: String): String {
     return format(DateTimeFormatter.ofPattern(pattern))
 }
 
+fun String.unquoted(): String {
+    if (length < 2) {
+        return this
+    }
+
+    return if (startsWith("\"") && endsWith("\"")) {
+        substring(1, lastIndex)
+    } else {
+        this
+    }
+}
+
 fun runMain(run: () -> Unit) {
     CoroutineScope(Dispatchers.Main).launch {
         run()
