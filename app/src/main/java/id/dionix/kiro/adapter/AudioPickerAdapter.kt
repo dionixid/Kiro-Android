@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import id.dionix.kiro.databinding.ItemPlaylistBinding
+import id.dionix.kiro.databinding.ItemSearchPlaylistBinding
 import id.dionix.kiro.model.SurahProperties
 import id.dionix.kiro.utility.format
 import id.dionix.kiro.utility.secondsToTime
@@ -24,7 +24,7 @@ class AudioPickerAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AudioPickerAdapter.ViewHolder {
         return ViewHolder(
-            ItemPlaylistBinding.inflate(
+            ItemSearchPlaylistBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
                 false
@@ -41,20 +41,19 @@ class AudioPickerAdapter(
     }
 
     inner class ViewHolder(
-        private val mBinding: ItemPlaylistBinding
+        private val mBinding: ItemSearchPlaylistBinding
     ) : RecyclerView.ViewHolder(mBinding.root) {
 
         init {
             mBinding.root.setOnClickListener {
                 mOnItemSelected(surah.copy())
             }
-            mBinding.cvDurationBackground.visibility = View.GONE
-            mBinding.llVolume.visibility = View.GONE
         }
 
         var surah: SurahProperties = SurahProperties()
             set(value) {
                 field = value
+                mBinding.tvId.text = String.format("%03d", value.id)
                 mBinding.tvName.text = value.name
                 mBinding.tvDuration.text = value.durationSeconds.secondsToTime().format("HH:mm:ss")
             }
