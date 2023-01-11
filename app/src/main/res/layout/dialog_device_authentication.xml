@@ -86,15 +86,24 @@
                     android:textColor="@color/text_primary"
                     android:textSize="15dp" />
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/iv_visibility"
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_visibility"
                     android:layout_width="40dp"
                     android:layout_height="match_parent"
-                    android:scaleX="0.5"
-                    android:scaleY="0.5"
-                    android:tint="@color/text_default"
-                    android:src="@drawable/ic_round_visibility"
-                    android:layout_alignParentEnd="true"/>
+                    app:cardBackgroundColor="@color/transparent"
+                    app:cardElevation="0dp"
+                    app:cardCornerRadius="0dp"
+                    android:layout_alignParentEnd="true">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/iv_visibility"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:tint="@color/text_default"
+                        android:src="@drawable/ic_round_visibility"/>
+
+                </androidx.cardview.widget.CardView>
             </RelativeLayout>
 
         </androidx.cardview.widget.CardView>

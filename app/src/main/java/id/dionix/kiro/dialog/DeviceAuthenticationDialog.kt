@@ -59,7 +59,7 @@ class DeviceAuthenticationDialog(
             setText(password)
         }
 
-        mBinding.ivVisibility.apply {
+        mBinding.cvVisibility.apply {
             scaleOnClick {
                 val selectionStart = mBinding.etValue.selectionStart
                 val selectionEnd = mBinding.etValue.selectionEnd
