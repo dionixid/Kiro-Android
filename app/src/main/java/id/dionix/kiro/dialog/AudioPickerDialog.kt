@@ -26,10 +26,7 @@ import id.dionix.kiro.database.SurahViewModel
 import id.dionix.kiro.databinding.DialogAudioPickerBinding
 import id.dionix.kiro.model.SurahAudio
 import id.dionix.kiro.model.SurahProperties
-import id.dionix.kiro.utility.dip
-import id.dionix.kiro.utility.dp
-import id.dionix.kiro.utility.hideKeyboard
-import id.dionix.kiro.utility.scaleOnClick
+import id.dionix.kiro.utility.*
 
 class AudioPickerDialog(
     onItemSelected: (surahProps: SurahProperties) -> Unit = {},
@@ -82,7 +79,6 @@ class AudioPickerDialog(
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         mOnDismiss()
-        mSurahViewModel.filter("")
     }
 
     override fun dismiss() {
@@ -194,6 +190,10 @@ class AudioPickerDialog(
         }
 
         val audioAdapter = AudioPickerAdapter(::openAudioPreviewDialog)
+
+        mSurahViewModel.allSurah.observe(viewLifecycleOwner) {
+            mSurahViewModel.filter("")
+        }
 
         mSurahViewModel.searchResults.observe(viewLifecycleOwner) {
             audioAdapter.setSurahList(it)
