@@ -63,10 +63,12 @@ object Config {
             val config = TinyDB.getInstance().get(KEY_APP, AppConfig::class.java)
 
             if (config == null) {
-                app = AppConfig(getDeviceName(context), UUID.randomUUID().toString())
+                app = AppConfig(UUID.randomUUID().toString(), getDeviceName(context))
                 CoroutineScope(Dispatchers.IO).launch {
                     TinyDB.getInstance().put(KEY_APP, app)
                 }
+            } else {
+                app = config
             }
 
             runMain {
