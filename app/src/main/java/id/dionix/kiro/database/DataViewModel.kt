@@ -18,7 +18,7 @@ import java.time.LocalTime
 
 class DataViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = DataRepository()
+    private val mRepository = DataRepository()
 
     private val mMutableTime = MutableLiveData(LocalTime.now())
     val time: LiveData<LocalTime> get() = mMutableTime
@@ -62,8 +62,8 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
     private val mMutableNotification = MutableLiveData<Notification?>(null)
     val notification: LiveData<Notification?> = mMutableNotification
 
-    val isConnected = repository.isConnected
-    val isAuthenticated = repository.isAuthenticated
+    val isConnected: LiveData<Boolean> get() = mRepository.isConnected
+    val isAuthenticated: LiveData<Boolean> get() = mRepository.isAuthenticated
 
     fun initialize() {
         CoroutineScope(Dispatchers.IO).launch {
@@ -75,23 +75,23 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun sendPrayerTimeOffset(prayerTimeOffset: PrayerTimeOffset) {
-        repository.send(TOPIC_PRAYER_OFFSET, Message.Action.Set, Value(prayerTimeOffset))
+        mRepository.send(TOPIC_PRAYER_OFFSET, Message.Action.Set, Value(prayerTimeOffset))
     }
 
     fun sendQiroGroup(qiroGroup: QiroGroup) {
-        repository.send(TOPIC_QIRO_GROUP, Message.Action.Set, Value(qiroGroup))
+        mRepository.send(TOPIC_QIRO_GROUP, Message.Action.Set, Value(qiroGroup))
     }
 
     fun sendSettingGroup(settingGroup: SettingGroup) {
-        repository.send(TOPIC_SETTING_GROUP, Message.Action.Set, Value(settingGroup))
+        mRepository.send(TOPIC_SETTING_GROUP, Message.Action.Set, Value(settingGroup))
     }
 
     fun sendSurahPreview(surah: SurahAudio) {
-        repository.send(TOPIC_SURAH_PREVIEW, Message.Action.Set, Value(surah))
+        mRepository.send(TOPIC_SURAH_PREVIEW, Message.Action.Set, Value(surah))
     }
 
     fun sendSurahForceStopCommand() {
-        repository.send(TOPIC_SURAH_FORCE_STOP, Message.Action.Set, Value(true))
+        mRepository.send(TOPIC_SURAH_FORCE_STOP, Message.Action.Set, Value(true))
     }
 
     fun setNotification(notification: Notification?) {
@@ -104,7 +104,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         mIsPendingSurahCollection = true
-        repository.send(TOPIC_SURAH_COLLECTION, Message.Action.Get, Value(0))
+        mRepository.send(TOPIC_SURAH_COLLECTION, Message.Action.Get, Value(0))
     }
 
     fun setSurahCollection(collection: SurahCollection) {
@@ -129,28 +129,28 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun join(password: String) {
-        repository.join(password)
+        mRepository.join(password)
     }
 
     fun leave() {
-        repository.leave()
+        mRepository.leave()
         mMutableDevice.value = null
     }
 
     fun setClientID(name: String, id: String) {
-        repository.setClientID(name, id)
+        mRepository.setClientID(name, id)
     }
 
     fun setServer(host: String, port: Int) {
-        repository.setServer(host, port)
+        mRepository.setServer(host, port)
     }
 
     fun attachToLifecycle(lifecycle: Lifecycle) {
-        lifecycle.addObserver(repository)
+        lifecycle.addObserver(mRepository)
     }
 
     init {
-        repository.onTopic(TOPIC_DEVICE) {
+        mRepository.onTopic(TOPIC_DEVICE) {
             if (it.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -163,7 +163,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_PRAYER_GROUP) {
+        mRepository.onTopic(TOPIC_PRAYER_GROUP) {
             if (it.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -176,7 +176,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_PRAYER_ONGOING) {
+        mRepository.onTopic(TOPIC_PRAYER_ONGOING) {
             if (it.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -189,7 +189,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_QIRO_GROUP) { message ->
+        mRepository.onTopic(TOPIC_QIRO_GROUP) { message ->
             if (message.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -215,7 +215,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_QIRO_ONGOING) {
+        mRepository.onTopic(TOPIC_QIRO_ONGOING) {
             if (it.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -228,7 +228,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_SETTING_GROUP) { message ->
+        mRepository.onTopic(TOPIC_SETTING_GROUP) { message ->
             if (message.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -246,7 +246,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_SETTING_ALL) { message ->
+        mRepository.onTopic(TOPIC_SETTING_ALL) { message ->
             if (message.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -274,7 +274,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_SURAH_PREVIEW) {
+        mRepository.onTopic(TOPIC_SURAH_PREVIEW) {
             if (it.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -287,7 +287,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_SURAH_ONGOING) {
+        mRepository.onTopic(TOPIC_SURAH_ONGOING) {
             if (it.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -300,7 +300,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_SURAH_COLLECTION) {
+        mRepository.onTopic(TOPIC_SURAH_COLLECTION) {
             if (it.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
@@ -319,7 +319,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
                             Config.updateCollection(collection.name, collection.totalSize, collection.progress)
                             AppDatabase.getInstance().surahDao.deleteAll()
 
-                            repository.send(TOPIC_SURAH_LIST, Message.Action.Get, Value(0))
+                            mRepository.send(TOPIC_SURAH_LIST, Message.Action.Get, Value(0))
                             runMain {
                                 mMutableIsUpdatingSurahCollection.value = true
                             }
@@ -329,7 +329,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        repository.onTopic(TOPIC_SURAH_LIST) { message ->
+        mRepository.onTopic(TOPIC_SURAH_LIST) { message ->
             if (message.senderId != Message.SERVER_ID) {
                 return@onTopic
             }
