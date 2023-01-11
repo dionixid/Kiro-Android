@@ -1,8 +1,8 @@
 package id.dionix.kiro.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import id.dionix.kiro.databinding.ItemSearchPlaylistBinding
 import id.dionix.kiro.model.SurahProperties
@@ -18,8 +18,26 @@ class AudioPickerAdapter(
     private var mItems: List<SurahProperties> = listOf()
 
     fun setSurahList(surahList: List<SurahProperties>) {
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int {
+                return mItems.size
+            }
+
+            override fun getNewListSize(): Int {
+                return surahList.size
+            }
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return mItems[oldItemPosition].id == surahList[newItemPosition].id
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return mItems[oldItemPosition] == surahList[newItemPosition]
+            }
+        })
+
         mItems = surahList.map { it.copy() }
-        notifyItemRangeChanged(0, mItems.size)
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AudioPickerAdapter.ViewHolder {
