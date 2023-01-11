@@ -7,7 +7,9 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatDialogFragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
+import com.google.android.material.slider.Slider
+import com.google.android.material.slider.Slider.OnSliderTouchListener
 import id.dionix.kiro.R
 import id.dionix.kiro.database.DataViewModel
 import id.dionix.kiro.databinding.DialogAudioPreviewBinding
@@ -32,7 +34,7 @@ class AudioPreviewDialog(
 
     private lateinit var mBinding: DialogAudioPreviewBinding
 
-    private val mDataViewModel by viewModels<DataViewModel>()
+    private val mDataViewModel by activityViewModels<DataViewModel>()
 
     private var mIsPaused = false
         set(value) {
@@ -115,11 +117,21 @@ class AudioPreviewDialog(
         mBinding.tvButton.text = mButtonLabel
 
         mBinding.slider.apply {
+            value = mAudio.volume.toFloat()
+            mBinding.tvVolume.text = value.toInt().toString()
+
             addOnChangeListener { _, value, _ ->
                 mAudio.volume = value.toInt()
                 mBinding.tvVolume.text = value.toInt().toString()
             }
-            value = mAudio.volume.toFloat()
+
+            addOnSliderTouchListener(object : OnSliderTouchListener {
+                override fun onStartTrackingTouch(slider: Slider) {}
+                override fun onStopTrackingTouch(slider: Slider) {
+                    mDataViewModel.sendSurahPreview(mAudio)
+                }
+            })
+
         }
 
         mDataViewModel.surahPreview.observe(viewLifecycleOwner) { audio ->
