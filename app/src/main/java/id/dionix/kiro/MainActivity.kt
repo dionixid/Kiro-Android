@@ -103,6 +103,10 @@ class MainActivity : AppCompatActivity() {
         UDP.initialize(applicationContext)
         TinyDB.initialize(applicationContext)
         AppDatabase.initialize(applicationContext)
+        SingleToast.initialize(applicationContext)
+
+        WiFi.enableLog()
+        Log.enable(Log.Priority.ASSERT)
 
         mDataViewModel.initialize()
         mDataViewModel.attachToLifecycle(lifecycle)
