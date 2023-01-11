@@ -1,15 +1,13 @@
 package id.dionix.kiro.database
 
 import android.app.Application
+import android.net.Network
 import androidx.lifecycle.*
 import com.codedillo.rttp.model.Message
 import com.codedillo.rttp.model.Value
 import com.codedillo.tinydb.TinyDB
 import id.dionix.kiro.model.*
-import id.dionix.kiro.utility.Config
-import id.dionix.kiro.utility.parseDate
-import id.dionix.kiro.utility.runMain
-import id.dionix.kiro.utility.secondsToTime
+import id.dionix.kiro.utility.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -130,6 +128,14 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
 
     fun join(password: String) {
         mRepository.join(password)
+    }
+
+    fun rejoin() {
+        mRepository.rejoin()
+    }
+
+    fun bind(network: Network?) {
+        mRepository.bind(network)
     }
 
     fun leave() {
