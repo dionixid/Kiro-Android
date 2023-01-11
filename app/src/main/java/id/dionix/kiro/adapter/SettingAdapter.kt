@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import id.dionix.kiro.R
 import id.dionix.kiro.databinding.*
@@ -17,7 +18,7 @@ class SettingAdapter(
     private val onItemSelected: (setting: Setting) -> Unit = {}
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items: MutableList<Any> = mutableListOf(
+    private var items: MutableList<Any> = mutableListOf(
         Device(),
         Footer("© 2023 Dionix ID")
     )
@@ -30,50 +31,67 @@ class SettingAdapter(
     }
 
     fun setSettingGroups(settingGroups: List<SettingGroup>) {
-        if (items.size > 1) {
-            val count = items.count { it is Setting || it is String }
-            items.removeIf { it is Setting || it is String }
-            notifyItemRangeRemoved(1, count)
+        val newItems = buildList {
+            addAll(items.filterIsInstance<Device>())
+            addAll(settingGroups.flatMap {
+                buildList {
+                    add(it.name)
+                    addAll(it.settings)
+                }
+            })
+            addAll(items.filterIsInstance<Action>())
+            addAll(items.filterIsInstance<Footer>())
         }
 
-        val settings = mutableListOf<Any>()
-        settingGroups.forEach { group ->
-            settings.add(group.name)
-            group.settings.forEach { setting ->
-                settings.add(setting.copy())
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int {
+                return items.size
             }
-        }
 
-        items.addAll(1, settings)
-        notifyItemRangeInserted(1, settings.size)
-    }
-
-    fun setSetting(setting: Setting) {
-        items.forEachIndexed { index, any ->
-            if (any is Setting && any.id == setting.id) {
-                any.label = setting.label
-                any.value = setting.value
-                notifyItemChanged(index, setting)
-                return
+            override fun getNewListSize(): Int {
+                return newItems.size
             }
-        }
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return items[oldItemPosition] == newItems[newItemPosition]
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return items[oldItemPosition] == newItems[newItemPosition]
+            }
+        })
+
+        items = newItems.toMutableList()
+        diffResult.dispatchUpdatesTo(this)
     }
 
     fun setActions(actions: List<Action>) {
-        val start = items.indexOfFirst { it is Action }
-
-        if (start != -1) {
-            val count = items.count { it is Action }
-            items.removeIf { it is Action }
-            notifyItemRangeRemoved(start, count)
+        val newItems = buildList {
+            addAll(items.filter { it !is Action && it !is Footer })
+            addAll(actions)
+            addAll(items.filterIsInstance<Footer>())
         }
 
-        if (start == -1) {
-            items.addAll(items.lastIndex, actions)
-        } else {
-            items.addAll(start, actions)
-        }
-        notifyItemRangeInserted(start, actions.size)
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int {
+                return items.size
+            }
+
+            override fun getNewListSize(): Int {
+                return newItems.size
+            }
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return items[oldItemPosition] == newItems[newItemPosition]
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return items[oldItemPosition] == newItems[newItemPosition]
+            }
+        })
+
+        items = newItems.toMutableList()
+        diffResult.dispatchUpdatesTo(this)
     }
 
     fun setAction(action: Action) {
@@ -225,7 +243,10 @@ class SettingAdapter(
                     Setting.Type.Elevation -> {
                         setting.value.toInt().elevation(context)
                     }
-                    else -> ContentResolver.getString(mBinding.root.context, setting.value.toString())
+                    else -> ContentResolver.getString(
+                        mBinding.root.context,
+                        setting.value.toString()
+                    )
                 }
             }
         }
