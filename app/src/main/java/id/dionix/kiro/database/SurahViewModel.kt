@@ -50,7 +50,11 @@ class SurahViewModel(application: Application) : AndroidViewModel(application) {
             allSurah.value?.let { list ->
                 val newSearchResults = list.filter { surah ->
                     patterns.all { token ->
-                        surah.name.contains(token)
+                        surah.name
+                            .replace(Regex("[^\\w\\d]"), "")
+                            .contains(
+                                token.replace(Regex("[^\\w\\d]"), "")
+                            )
                     }
                 }
 
