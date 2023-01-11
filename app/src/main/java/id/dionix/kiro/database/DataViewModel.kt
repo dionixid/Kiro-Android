@@ -282,11 +282,12 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             runMain {
                 mMutableSettingGroups.value = settings
                 settings.forEach {
-                    val newTime = it.getSetting(Setting.Type.Time) ?: return@runMain
-                    val newDate = it.getSetting(Setting.Type.Date) ?: return@runMain
+                    val newTime = it.getSetting(Setting.Type.Time) ?: return@forEach
+                    val newDate = it.getSetting(Setting.Type.Date) ?: return@forEach
 
                     mMutableTime.value = newTime.value.toInt().secondsToTime()
                     mMutableDate.value = newDate.value.toString().parseDate("dd-MM-yyyy")
+                    return@runMain
                 }
             }
         }
