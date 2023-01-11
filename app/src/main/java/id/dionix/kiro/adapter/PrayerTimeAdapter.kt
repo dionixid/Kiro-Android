@@ -151,16 +151,26 @@ class PrayerTimeAdapter(
                 }
 
                 mBinding.tvPrayerTime.text = when (value.prayer.name) {
-                    Prayer.Name.Fajr -> context.getString(R.string.fajr_format,
-                        value.prayer.getFormattedTime())
-                    Prayer.Name.Dhuhr -> context.getString(R.string.dhuhr_format,
-                        value.prayer.getFormattedTime())
-                    Prayer.Name.Asr -> context.getString(R.string.asr_format,
-                        value.prayer.getFormattedTime())
-                    Prayer.Name.Maghrib -> context.getString(R.string.maghrib_format,
-                        value.prayer.getFormattedTime())
-                    Prayer.Name.Isha -> context.getString(R.string.isha_format,
-                        value.prayer.getFormattedTime())
+                    Prayer.Name.Fajr -> context.getString(
+                        R.string.fajr_format,
+                        value.prayer.getFormattedTime()
+                    )
+                    Prayer.Name.Dhuhr -> context.getString(
+                        R.string.dhuhr_format,
+                        value.prayer.getFormattedTime()
+                    )
+                    Prayer.Name.Asr -> context.getString(
+                        R.string.asr_format,
+                        value.prayer.getFormattedTime()
+                    )
+                    Prayer.Name.Maghrib -> context.getString(
+                        R.string.maghrib_format,
+                        value.prayer.getFormattedTime()
+                    )
+                    Prayer.Name.Isha -> context.getString(
+                        R.string.isha_format,
+                        value.prayer.getFormattedTime()
+                    )
                 }
 
                 mBinding.clContainer.setBackgroundResource(
@@ -244,7 +254,8 @@ class PrayerTimeAdapter(
 
                     if (value.qiro.surahList.isNotEmpty()) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            val name = ContentResolver.getSurahProperties(value.qiro.surahList[0]).name
+                            val name =
+                                ContentResolver.getSurahProperties(value.qiro.surahList[0]).name
                             runMain {
                                 text = name
                             }
@@ -313,7 +324,7 @@ class PrayerTimeAdapter(
             ongoing.qiro = qiro.deepCopy()
         }
 
-        fun toPrayerTimeOffset() : PrayerTimeOffset {
+        fun toPrayerTimeOffset(): PrayerTimeOffset {
             return PrayerTimeOffset(
                 fajr.prayer.offset,
                 dhuhr.prayer.offset,
