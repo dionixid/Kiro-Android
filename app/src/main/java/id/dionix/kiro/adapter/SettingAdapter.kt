@@ -246,9 +246,7 @@ class SettingAdapter(
                 mBinding.tvLabel.text =
                     ContentResolver.getString(mBinding.root.context, value.label)
 
-                if (!value.isConfidential) {
-                    isVisible = true
-                }
+                isVisible = !value.isConfidential
 
                 updateValue()
                 updateVisibility()
