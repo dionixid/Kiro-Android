@@ -241,12 +241,21 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
 
             val group = message.payload.toObject { SettingGroup() }
             if (group.isValid) {
-                val groups = mMutableSettingGroups.value?.toMutableList() ?: return@onTopic
-                val idx = groups.indexOfFirst { it.name == group.name }
-                if (idx != -1) {
-                    groups[idx] = group
-                    runMain {
+                runMain {
+                    val groups = mMutableSettingGroups.value?.toMutableList() ?: return@runMain
+                    val idx = groups.indexOfFirst { it.name == group.name }
+                    if (idx != -1) {
+                        groups[idx] = group
                         mMutableSettingGroups.value = groups
+                    }
+
+                    groups.forEach {
+                        val newTime = it.getSetting(Setting.Type.Time) ?: return@forEach
+                        val newDate = it.getSetting(Setting.Type.Date) ?: return@forEach
+
+                        mMutableTime.value = newTime.value.toInt().secondsToTime()
+                        mMutableDate.value = newDate.value.toString().parseDate("dd-MM-yyyy")
+                        return@runMain
                     }
                 }
             }
