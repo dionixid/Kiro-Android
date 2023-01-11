@@ -162,10 +162,12 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             val device = it.payload.toObject { Device() }
-            if (device.isValid) {
-                mMutableDevice.value = device
-            } else {
-                mMutableDevice.value = null
+            runMain {
+                if (device.isValid) {
+                    mMutableDevice.value = device
+                } else {
+                    mMutableDevice.value = null
+                }
             }
         }
 
