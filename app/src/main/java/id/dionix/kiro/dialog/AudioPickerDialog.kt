@@ -201,6 +201,7 @@ class AudioPickerDialog(
         mBinding.rvAudioPicker.apply {
             setHasFixedSize(true)
             adapter = audioAdapter
+            itemAnimator = null
 
             layoutManager = object : LinearLayoutManager(requireContext()) {
                 override fun supportsPredictiveItemAnimations(): Boolean {
