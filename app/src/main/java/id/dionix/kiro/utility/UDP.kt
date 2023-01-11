@@ -22,14 +22,14 @@ object UDP {
     private var mCoroutine: CoroutineScope? = null
     private val mBuffer = ByteArray(64)
     private var mSocket: DatagramSocket? = null
+    private var mNetwork: Network? = null
 
     private var wifiManager: WifiManager? = null
     private var connectivityManager: ConnectivityManager? = null
 
-    private var mOnResult: (name: String, ip: String) -> Unit = { _, _, -> }
+    private var mOnResult: (name: String, ip: String) -> Unit = { _, _ -> }
 
     fun initialize(context: Context) {
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             connectivityManager =
                 connectivityManager ?: context.getSystemService(ConnectivityManager::class.java)
@@ -65,7 +65,8 @@ object UDP {
         }
     }
 
-    fun rebind() {
+    fun bind(network: Network?) {
+        mNetwork = network
         tryRun {
             mCoroutine?.cancel()
         }
@@ -97,13 +98,14 @@ object UDP {
 
     private fun initializeUDP() {
         tryRun {
-            mCoroutine?.cancel()
             mSocket?.close()
+            mCoroutine?.cancel()
         }
 
         mSocket = DatagramSocket(null).apply {
             reuseAddress = true
             soTimeout = 5000
+            mNetwork?.bindSocket(this)
             bind(InetSocketAddress(DEVICE_PORT))
         }
 
