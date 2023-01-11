@@ -91,7 +91,8 @@ class RTTPClient(
      * @param secret is the secret key to authenticate with.
      */
     fun join(channel: String = GLOBAL_CHANNEL, secret: String = "") {
-        if (mHost.isEmpty() || mPort == 0) {
+        connectTimer.cancel()
+        if (mHost.isEmpty() || mPort == 0 || mName.isBlank()) {
             return
         }
 
@@ -111,12 +112,7 @@ class RTTPClient(
         mChannel.name = channel
         mSecret = secret
 
-        val url = "ws://$mHost:$mPort/rttp/${channel.lowercase()}"
-        mClient = mFactory.createSocket(url, 5000)
-        mClient.addListener(socketListener)
-        mClient.connectAsynchronously()
-
-        mIsAutoConnect = true
+        connectTimer.start()
     }
 
     /**
@@ -133,14 +129,13 @@ class RTTPClient(
         if (this::mClient.isInitialized) {
             mClient.clearListeners()
             reconnectTimer.cancel()
+            mClient.disconnect()
 
             val client = mClient
             CoroutineScope(Dispatchers.IO).launch {
-                while (client.state == WebSocketState.CREATED || client.state == WebSocketState.CONNECTING) {
-                    delay(1000)
-                }
-                CoroutineScope(Dispatchers.Main).launch {
+                while (mClient.state != WebSocketState.CLOSED) {
                     client.disconnect()
+                    delay(1000)
                 }
             }
         }
@@ -289,12 +284,11 @@ class RTTPClient(
         mClient.sendBinary(Auth(mId, mName, mSecret).serialize().toByteArray())
     }
 
-    private val socketListener = object : WebSocketAdapter() {
+    private val mSocketListener = object : WebSocketAdapter() {
         override fun onConnected(
             websocket: WebSocket?,
-            headers: MutableMap<String, MutableList<String>>?,
+            headers: MutableMap<String, MutableList<String>>?
         ) {
-            mClient.pongInterval = 15000
             mOnJoinListener()
             mIsChangingChannel = false
 
@@ -336,7 +330,6 @@ class RTTPClient(
                 val list = message.payload.toList { it.toObject { Channel() } }
                 mChannels.clear()
 
-//                Log.println(Log.ASSERT, "RTTP Client", message.payload.toString())
                 list.forEach { channel ->
                     if (channel.isValid) {
                         mChannels.add(channel)
@@ -382,7 +375,7 @@ class RTTPClient(
             websocket: WebSocket?,
             serverCloseFrame: WebSocketFrame?,
             clientCloseFrame: WebSocketFrame?,
-            closedByServer: Boolean,
+            closedByServer: Boolean
         ) {
             reconnectTimer.start()
             mIsRegistered = false
@@ -396,7 +389,19 @@ class RTTPClient(
         }
     }
 
-    private val reconnectTimer = object : CountDownTimer(5000, 5000) {
+    private val connectTimer = object : CountDownTimer(2000, 2000) {
+        override fun onTick(millisUntilFinished: Long) {}
+        override fun onFinish() {
+            val url = "ws://$mHost:$mPort/rttp/${mChannel.name.lowercase()}"
+            mClient = mFactory.createSocket(url, 10000)
+            mClient.addListener(mSocketListener)
+            mClient.connectAsynchronously()
+
+            mIsAutoConnect = true
+        }
+    }
+
+    private val reconnectTimer = object : CountDownTimer(10000, 10000) {
         override fun onTick(millisUntilFinished: Long) {}
         override fun onFinish() {
             join(mChannel.name, mSecret)
