@@ -89,4 +89,9 @@
     <string name="updating_playlist">Memperbarui playlist..</string>
     <string name="device_not_connected">Perangkat tidak terhubung</string>
     <string name="find_device">Cari Perangkat</string>
+    <string name="cannot_connect_to_device">Tidak dapat terhubung ke perangkat</string>
+    <string name="device_connection_lost">Sambungan perangkat terputus</string>
+    <string name="data_has_been_saved_successfully">Data berhasil disimpan</string>
+    <string name="playlist_stopped_successfully">Daftar putar berhasil dihentikan</string>
+    <string name="play">Putar</string>
 </resources>
