@@ -173,7 +173,7 @@ class AudioPickerDialog(
                     mBinding.marginSlider.maxMargin = if (it.isNotEmpty()) {
                         -(measuredHeight + mBinding.tvLastSearchTitle.measuredHeight + 8.dip)
                     } else {
-                        16.dip
+                        8.dip
                     }
                 }
             }
@@ -187,7 +187,7 @@ class AudioPickerDialog(
                 mBinding.marginSlider.maxMargin = if (measuredWidth > 0) {
                     -(measuredHeight + mBinding.tvLastSearchTitle.measuredHeight + 8.dip)
                 } else {
-                    16.dip
+                    8.dip
                 }
             }
         }
