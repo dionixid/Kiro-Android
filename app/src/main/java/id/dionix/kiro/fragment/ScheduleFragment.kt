@@ -18,8 +18,10 @@ import id.dionix.kiro.database.DataViewModel
 import id.dionix.kiro.databinding.FragmentScheduleBinding
 import id.dionix.kiro.dialog.DeviceDialog
 import id.dionix.kiro.dialog.ScheduleDialog
+import id.dionix.kiro.model.Notification
 import id.dionix.kiro.model.Prayer
 import id.dionix.kiro.utility.dip
+import id.dionix.kiro.utility.makeTimer
 import id.dionix.kiro.utility.scaleOnClick
 
 class ScheduleFragment : Fragment() {
@@ -27,6 +29,7 @@ class ScheduleFragment : Fragment() {
     private lateinit var mBinding: FragmentScheduleBinding
 
     private var mIsOpenDialog = false
+    private var mIsWaitingResponse = false
 
     private val mDataViewModel by activityViewModels<DataViewModel>()
 
@@ -57,6 +60,8 @@ class ScheduleFragment : Fragment() {
                     prayerName,
                     qiroGroup,
                     onSave = {
+                        mIsWaitingResponse = true
+                        mResponseTimer.start()
                         mDataViewModel.sendQiroGroup(it)
                     },
                     onDismiss = {
@@ -68,6 +73,14 @@ class ScheduleFragment : Fragment() {
 
         mDataViewModel.qiroGroups.observe(viewLifecycleOwner) {
             scheduleAdapter.setQiroGroups(it)
+
+            if (mIsWaitingResponse) {
+                mIsWaitingResponse = false
+                mResponseTimer.cancel()
+                mDataViewModel.setNotification(
+                    Notification(getString(R.string.data_has_been_saved_successfully))
+                )
+            }
         }
 
         fun updatePrayer(name: Prayer.Name) {
@@ -156,6 +169,16 @@ class ScheduleFragment : Fragment() {
         }
 
         return mBinding.root
+    }
+
+    private val mResponseTimer = makeTimer(5000) {
+        mIsWaitingResponse = false
+        mDataViewModel.setNotification(
+            Notification(
+                getString(R.string.cannot_connect_to_device),
+                true
+            )
+        )
     }
 
 }
