@@ -1,5 +1,6 @@
 package id.dionix.kiro.database
 
+import android.net.Network
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
@@ -7,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import com.codedillo.rttp.RTTPClient
 import com.codedillo.rttp.model.Message
 import com.codedillo.rttp.model.Value
+import id.dionix.kiro.utility.*
 
 class DataRepository : DefaultLifecycleObserver {
 
@@ -21,6 +23,18 @@ class DataRepository : DefaultLifecycleObserver {
     fun join(password: String) {
         mIsJoined = true
         mDevice.join(CHANNEL, password)
+    }
+
+    fun rejoin() {
+        mDevice.rejoin()
+    }
+
+    fun bind(network: Network?) {
+        UDP.bind(network)
+        mDevice.bind(network)
+        if (mIsJoined) {
+            mDevice.rejoin()
+        }
     }
 
     fun leave() {
