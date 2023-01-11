@@ -72,7 +72,11 @@ data class Prayer(
         }
 
         name = Name.values()[nameIndex]
-        time = LocalTime.ofSecondOfDay(list[1].toLong())
+        time = try {
+            LocalTime.ofSecondOfDay(list[1].toLong())
+        } catch (_: Exception) {
+            LocalTime.ofSecondOfDay(0)
+        }
         offset = list[2].toInt()
     }
 
