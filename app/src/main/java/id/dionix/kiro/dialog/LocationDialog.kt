@@ -11,6 +11,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatDialog
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.addTextChangedListener
 import com.codedillo.rttp.model.Value
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -162,15 +163,22 @@ class LocationDialog(
         mBinding.mapView.onCreate(savedInstanceState)
         mBinding.mapView.getMapAsync(this)
 
-        mBinding.etElevation.setText(mElevation.value.toInt().toString())
-        updateLatLngText()
-
-        mBinding.etElevation.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                clearEditTextFocus()
+        mBinding.etElevation.apply {
+            setText(mElevation.value.toInt().toString())
+            setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    clearEditTextFocus()
+                }
+                return@setOnEditorActionListener false
             }
-            return@setOnEditorActionListener false
+            addTextChangedListener {
+                it?.toString()?.toIntOrNull()?.let { elevation ->
+                    mElevation.value = Value(elevation)
+                }
+            }
         }
+
+        updateLatLngText()
 
         mBinding.tvLatitude.setOnClickListener {
             // Do Nothing. Prevent clicking the map behind.
