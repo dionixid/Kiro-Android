@@ -119,8 +119,8 @@ class MainActivity : AppCompatActivity() {
             mDataViewModel.setSurahCollection(it)
         }
 
-        mDataViewModel.isAuthenticated.observe(this) { isAuthenticated ->
-            if (isAuthenticated) {
+        mDataViewModel.device.observe(this) { device ->
+            if (device != null) {
                 mDataViewModel.fetchSurahList()
             }
         }
