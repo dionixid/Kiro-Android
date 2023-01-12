@@ -109,6 +109,7 @@ class PlaylistAdapter(
     private fun updateSurah(position: Int, surahProps: SurahProperties) {
         mItems[position] = surahProps
         notifyItemChanged(position, surahProps)
+        mOnChange(mItems.filterIsInstance<SurahProperties>().map { it.toSurah() })
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -186,25 +187,29 @@ class PlaylistAdapter(
                 mBinding.tvVolume.text = value.volume.toString()
                 mBinding.tvDuration.text = value.durationSeconds.secondsToTime().format("HH:mm:ss")
 
-                durationAnimator?.cancel()
-                mBinding.cvDurationBackground.doOnLayout {
-                    durationAnimator = ValueAnimator.ofInt(
-                        mBinding.cvDurationForeground.measuredWidth,
-                        (calculateRelativePlaytime(adapterPosition) * mBinding.cvDurationBackground.measuredWidth).roundToInt()
-                    ).apply {
-                        addUpdateListener {
-                            mBinding.cvDurationForeground.apply {
-                                val params = layoutParams.apply {
-                                    width = it.animatedValue as Int
-                                }
-                                layoutParams = params
+                updateDuration()
+            }
+
+        fun updateDuration() {
+            durationAnimator?.cancel()
+            mBinding.cvDurationBackground.doOnLayout {
+                durationAnimator = ValueAnimator.ofInt(
+                    mBinding.cvDurationForeground.measuredWidth,
+                    (calculateRelativePlaytime(adapterPosition) * mBinding.cvDurationBackground.measuredWidth).roundToInt()
+                ).apply {
+                    addUpdateListener {
+                        mBinding.cvDurationForeground.apply {
+                            val params = layoutParams.apply {
+                                width = it.animatedValue as Int
                             }
+                            layoutParams = params
                         }
-                        duration = 200
-                        start()
                     }
+                    duration = 200
+                    start()
                 }
             }
+        }
 
         fun onStartDragging() {
             backgroundAnimator.start()
@@ -269,9 +274,11 @@ class PlaylistAdapter(
     }
 
     private lateinit var mSupportFragmentManager: FragmentManager
+    private var mRecyclerView: RecyclerView? = null
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
+        mRecyclerView = recyclerView
         itemTouchHelper.attachToRecyclerView(recyclerView)
 
         var context = recyclerView.context
@@ -283,6 +290,7 @@ class PlaylistAdapter(
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
+        mRecyclerView = null
         itemTouchHelper.attachToRecyclerView(null)
     }
 
@@ -306,12 +314,27 @@ class PlaylistAdapter(
 
                 Collections.swap(mItems, from, to)
                 notifyItemMoved(from, to)
+                mOnChange(mItems.filterIsInstance<SurahProperties>().map { it.toSurah() })
+
+                for (i in 0 until recyclerView.childCount) {
+                    val holder = recyclerView.getChildViewHolder(recyclerView.getChildAt(i))
+                    if (holder is SurahViewHolder) {
+                        holder.updateDuration()
+                    }
+                }
                 return true
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (viewHolder is SurahViewHolder) {
                     removeSurah(viewHolder.adapterPosition)
+                    val recyclerView = mRecyclerView ?: return
+                    for (i in 0 until recyclerView.childCount) {
+                        val holder = recyclerView.getChildViewHolder(recyclerView.getChildAt(i))
+                        if (holder is SurahViewHolder) {
+                            holder.updateDuration()
+                        }
+                    }
                 }
             }
 
