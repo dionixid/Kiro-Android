@@ -142,7 +142,7 @@ class DeviceConnectionFragment(
                             mAuthenticationDialog = DeviceAuthenticationDialog(
                                 onConnect = { dialog, password ->
                                     mIsConnecting = true
-                                    dialog.isConnecting = true
+                                    dialog.dismiss()
                                     mPassword = password
 
                                     Config.updateDevice(
