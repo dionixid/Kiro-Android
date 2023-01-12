@@ -174,14 +174,6 @@ class PlaylistAdapter(
                                 mIsOpenDialog = false
                             }
                         ).show(mSupportFragmentManager, "dialog_audio_preview")
-                        AudioPickerDialog(
-                            onItemSelected = {
-                                updateSurah(adapterPosition, it)
-                            },
-                            onDismiss = {
-                                mIsOpenDialog = false
-                            }
-                        ).show(mSupportFragmentManager, "dialog_audio_picker")
                     }
                 }
             }
