@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="90dp"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginHorizontal="16dp"
@@ -28,57 +28,16 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Sunday" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv_qiro_duration"
-            android:layout_width="wrap_content"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/green"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
+            android:overScrollMode="never"
+            android:layout_marginTop="12dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <TextView
-                android:id="@+id/tv_qiro_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:fontFamily="@font/dm_sans_bold"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:textColor="@color/white"
-                android:textSize="14dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="10 menit" />
-
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cv_surah"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/yellow"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <TextView
-                android:id="@+id/tv_surah"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:fontFamily="@font/dm_sans_bold"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
-                android:textColor="@color/white"
-                android:textSize="14dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:text="Al baqarah" />
-
-        </androidx.cardview.widget.CardView>
+            app:layout_constraintTop_toBottomOf="@+id/tv_title"
+            tools:layout_editor_absoluteX="16dp"
+            tools:listitem="@layout/item_schedule_surah" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
