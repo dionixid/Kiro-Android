@@ -52,8 +52,10 @@ class SurahViewModel(application: Application) : AndroidViewModel(application) {
                     patterns.all { token ->
                         surah.name
                             .replace(Regex("[^\\w\\d]"), "")
+                            .lowercase()
                             .contains(
                                 token.replace(Regex("[^\\w\\d]"), "")
+                                    .lowercase()
                             )
                     }
                 }
