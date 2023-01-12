@@ -74,7 +74,7 @@
     <string name="choose_audio">Pilih Audio</string>
     <string name="search">Cari...</string>
     <string name="last_result">Pencarian terakhir</string>
-    <string name="prayer_time_offset">Selisih Waktu Sholat</string>
+    <string name="prayer_time_correction">Koreksi Waktu Sholat</string>
     <string name="available_devices">Perangkat Tersedia</string>
     <string name="no_devices_found">Perangkat tidak ditemukan</string>
     <string name="connect_device">Hubungkan Perangkat</string>
@@ -94,4 +94,5 @@
     <string name="data_has_been_saved_successfully">Data berhasil disimpan</string>
     <string name="playlist_stopped_successfully">Daftar putar berhasil dihentikan</string>
     <string name="play">Putar</string>
+    <string name="and_more_format">dan %1$d lainnya</string>
 </resources>
