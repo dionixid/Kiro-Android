@@ -6,9 +6,9 @@ import android.content.ContextWrapper
 import android.graphics.Canvas
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.view.doOnLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import id.dionix.kiro.R
@@ -81,16 +81,37 @@ class PlaylistAdapter(
                 )
             }
 
+            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                override fun getOldListSize(): Int {
+                    return mItems.size
+                }
+
+                override fun getNewListSize(): Int {
+                    return newItems.size
+                }
+
+                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                    return mItems[oldItemPosition] == newItems[newItemPosition]
+                }
+
+                override fun areContentsTheSame(
+                    oldItemPosition: Int,
+                    newItemPosition: Int
+                ): Boolean {
+                    return mItems[oldItemPosition] == newItems[newItemPosition]
+                }
+            })
+
             runMain {
                 mItems = newItems.toMutableList()
-                notifyItemRangeChanged(0, mItems.size, mItems)
+                diffResult.dispatchUpdatesTo(this@PlaylistAdapter)
             }
         }
     }
 
     fun setTotalDuration(duration: Int) {
         mTotalDuration = duration * 60
-        notifyItemRangeChanged(0, mItems.lastIndex, duration)
+        updateDurationForActiveItems()
     }
 
     private fun addSurah(surahProps: SurahProperties) {
@@ -170,6 +191,7 @@ class PlaylistAdapter(
                             SurahAudio(surah.id, surah.volume, isPaused = false, isPlaying = false),
                             onApply =  { audio ->
                                 updateSurah(adapterPosition, surah.copy(volume = audio.volume))
+                                updateDurationForActiveItems()
                             },
                             onDismiss = {
                                 mIsOpenDialog = false
@@ -192,7 +214,7 @@ class PlaylistAdapter(
 
         fun updateDuration() {
             durationAnimator?.cancel()
-            mBinding.cvDurationBackground.doOnLayout {
+            mBinding.cvDurationBackground.post {
                 durationAnimator = ValueAnimator.ofInt(
                     mBinding.cvDurationForeground.measuredWidth,
                     (calculateRelativePlaytime(adapterPosition) * mBinding.cvDurationBackground.measuredWidth).roundToInt()
@@ -275,6 +297,11 @@ class PlaylistAdapter(
 
     private lateinit var mSupportFragmentManager: FragmentManager
     private var mRecyclerView: RecyclerView? = null
+    private var mUpdateDurationImpl = {}
+
+    private fun updateDurationForActiveItems() {
+        mUpdateDurationImpl()
+    }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -286,12 +313,22 @@ class PlaylistAdapter(
             context = context.baseContext
         }
         mSupportFragmentManager = (context as FragmentActivity).supportFragmentManager
+
+        mUpdateDurationImpl = {
+            for (i in 0 until recyclerView.childCount) {
+                val holder = recyclerView.getChildViewHolder(recyclerView.getChildAt(i))
+                if (holder is SurahViewHolder) {
+                    holder.updateDuration()
+                }
+            }
+        }
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         super.onDetachedFromRecyclerView(recyclerView)
         mRecyclerView = null
         itemTouchHelper.attachToRecyclerView(null)
+        mUpdateDurationImpl = {}
     }
 
     private val itemTouchHelper by lazy {
@@ -315,26 +352,14 @@ class PlaylistAdapter(
                 Collections.swap(mItems, from, to)
                 notifyItemMoved(from, to)
                 mOnChange(mItems.filterIsInstance<SurahProperties>().map { it.toSurah() })
-
-                for (i in 0 until recyclerView.childCount) {
-                    val holder = recyclerView.getChildViewHolder(recyclerView.getChildAt(i))
-                    if (holder is SurahViewHolder) {
-                        holder.updateDuration()
-                    }
-                }
+                updateDurationForActiveItems()
                 return true
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 if (viewHolder is SurahViewHolder) {
                     removeSurah(viewHolder.adapterPosition)
-                    val recyclerView = mRecyclerView ?: return
-                    for (i in 0 until recyclerView.childCount) {
-                        val holder = recyclerView.getChildViewHolder(recyclerView.getChildAt(i))
-                        if (holder is SurahViewHolder) {
-                            holder.updateDuration()
-                        }
-                    }
+                    updateDurationForActiveItems()
                 }
             }
 
