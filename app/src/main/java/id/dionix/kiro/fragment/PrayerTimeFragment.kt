@@ -93,7 +93,7 @@ class PrayerTimeFragment : Fragment() {
                         onDismiss = {
                             mIsOpenDialog = false
                         }
-                    )
+                    ).show(requireActivity().supportFragmentManager, "dialog_confirmation")
                 }
             },
             onItemSelected = {
@@ -137,7 +137,9 @@ class PrayerTimeFragment : Fragment() {
 
         mDataViewModel.qiroOngoing.observe(viewLifecycleOwner) {
             prayerTimeAdapter.setOngoingQiro(it)
+        }
 
+        mDataViewModel.surahOngoing.observe(viewLifecycleOwner) {
             if (mIsStopping) {
                 mIsStopping = false
                 mStoppingTimer.cancel()
