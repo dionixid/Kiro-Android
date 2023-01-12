@@ -20,6 +20,7 @@ data class SurahProperties(
     }
 
     @Ignore
+    @Transient
     override var isValid: Boolean = true
 
     override val data: List<Value>
