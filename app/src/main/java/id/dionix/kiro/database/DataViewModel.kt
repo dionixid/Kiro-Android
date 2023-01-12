@@ -111,6 +111,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addSurahSearchResult(surahProperties: SurahProperties) {
         var list = mMutableLastSurahSearch.value?.toMutableList() ?: mutableListOf()
+        list.removeIf { it.id == surahProperties.id }
         list.add(0, surahProperties)
 
         if (list.size > 10) {
