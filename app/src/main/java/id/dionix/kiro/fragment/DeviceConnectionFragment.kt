@@ -100,6 +100,7 @@ class DeviceConnectionFragment(
                                                 dialog.dismiss()
 
                                                 Config.updateDevice(
+                                                    name = mName,
                                                     key = password,
                                                     isLocal = true,
                                                     ip = "192.168.4.1"
@@ -146,6 +147,7 @@ class DeviceConnectionFragment(
                                     mPassword = password
 
                                     Config.updateDevice(
+                                        name = mName,
                                         key = password,
                                         isLocal = type != ConnectionType.INTERNET,
                                         ip = mAddress
@@ -212,9 +214,20 @@ class DeviceConnectionFragment(
             mBinding.tvAddress.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 11f)
         }
 
-        WiFi.isConnected(mName) {
-            mIsConnected = it
+        if (type == ConnectionType.WIFI) {
+            WiFi.isConnected(mName) {
+                mIsConnected = it
+            }
         }
+
+        mDataViewModel.isAuthenticated.observe(viewLifecycleOwner) { isAuthenticated ->
+            if (type == ConnectionType.LAN) {
+                mIsConnected = Config.device.name == mName
+                        && Config.device.ip == mAddress
+                        && isAuthenticated
+            }
+        }
+
         return mBinding.root
     }
 
