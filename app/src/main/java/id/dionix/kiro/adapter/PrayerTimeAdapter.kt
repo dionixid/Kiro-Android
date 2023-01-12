@@ -134,13 +134,26 @@ class PrayerTimeAdapter(
 
                 if (value.qiro.surahList.isNotEmpty()) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        val name = ContentResolver.getSurahProperties(
-                            if (surahAudio.isPlaying) {
-                                surahAudio.toSurah()
-                            } else {
-                                value.qiro.surahList[0]
+                        val name = if (surahAudio.isPlaying) {
+                            ContentResolver.getSurahProperties(surahAudio.toSurah()).name
+                        } else {
+                            val firstSurahName =
+                                ContentResolver.getSurahProperties(value.qiro.surahList[0]).name
+                            when (val surahSize = value.qiro.surahList.size) {
+                                1 -> firstSurahName
+                                2 -> {
+                                    "$firstSurahName & ${ContentResolver.getSurahProperties(value.qiro.surahList[1]).name}"
+                                }
+                                else -> {
+                                    "$firstSurahName ${
+                                        context.getString(
+                                            R.string.and_more_format,
+                                            surahSize - 1
+                                        )
+                                    }"
+                                }
                             }
-                        ).name
+                        }
 
                         runMain {
                             mBinding.tvSurah.text = name
@@ -254,8 +267,24 @@ class PrayerTimeAdapter(
 
                     if (value.qiro.surahList.isNotEmpty()) {
                         CoroutineScope(Dispatchers.IO).launch {
-                            val name =
+                            val firstSurahName =
                                 ContentResolver.getSurahProperties(value.qiro.surahList[0]).name
+
+                            val name = when (val surahSize = value.qiro.surahList.size) {
+                                1 -> firstSurahName
+                                2 -> {
+                                    "$firstSurahName & ${ContentResolver.getSurahProperties(value.qiro.surahList[1]).name}"
+                                }
+                                else -> {
+                                    "$firstSurahName ${
+                                        context.getString(
+                                            R.string.and_more_format,
+                                            surahSize - 1
+                                        )
+                                    }"
+                                }
+                            }
+
                             runMain {
                                 text = name
                             }
