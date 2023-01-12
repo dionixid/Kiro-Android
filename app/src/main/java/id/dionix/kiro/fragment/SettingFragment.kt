@@ -221,7 +221,7 @@ class SettingFragment : Fragment() {
                 mIsWaitingResponse = false
                 mResponseTimer.cancel()
                 mDataViewModel.setNotification(
-                    Notification(getString(R.string.data_has_been_saved_successfully))
+                    Notification(getString(R.string.updated_successfully))
                 )
             }
         }
