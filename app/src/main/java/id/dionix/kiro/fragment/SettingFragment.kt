@@ -226,19 +226,6 @@ class SettingFragment : Fragment() {
             }
         }
 
-        settingAdapter.setActions(
-            listOf(
-                SettingAdapter.Action(
-                    tag = "connection",
-                    label = getString(R.string.disconnect),
-                    color = requireContext().getColor(R.color.secondary)
-                ) {
-                    Config.resetDevice()
-                    mDataViewModel.leave()
-                }
-            )
-        )
-
         mDataViewModel.isConnected.observe(viewLifecycleOwner) {
             settingAdapter.setAction(
                 SettingAdapter.Action(
