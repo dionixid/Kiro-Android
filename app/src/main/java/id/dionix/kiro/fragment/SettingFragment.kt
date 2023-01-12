@@ -236,6 +236,7 @@ class SettingFragment : Fragment() {
                     if (it) {
                         Config.resetDevice()
                         mDataViewModel.leave()
+                        WiFi.disconnect()
                     } else {
                         mDataViewModel.rejoin()
                     }
