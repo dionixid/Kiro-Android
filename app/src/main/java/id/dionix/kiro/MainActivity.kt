@@ -298,7 +298,7 @@ class MainActivity : AppCompatActivity() {
                 visibility = View.VISIBLE
                 post {
                     animate()
-                        .setDuration(200)
+                        .setDuration(300)
                         .translationX(0f)
                         .withEndAction {
                             notificationTimer.start()
@@ -319,7 +319,7 @@ class MainActivity : AppCompatActivity() {
         mBinding.root.doOnLayout {
             mBinding.cvNotificationContainer
                 .animate()
-                .setDuration(200)
+                .setDuration(300)
                 .translationX(-mBinding.root.measuredWidth.toFloat())
                 .withEndAction {
                     if (onFinish != null) {
