@@ -15,6 +15,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import com.codedillo.tinydb.TinyDB
 import id.dionix.kiro.adapter.PagerAdapter
@@ -121,6 +123,17 @@ class MainActivity : AppCompatActivity() {
 
         Config.loadCollection {
             mDataViewModel.setSurahCollection(it)
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.root) { _, insets ->
+            val bottomBar = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            mBinding.ivNavigationPlaceHolder.apply {
+                val params = layoutParams.apply {
+                    height = bottomBar.bottom
+                }
+                layoutParams = params
+            }
+            return@setOnApplyWindowInsetsListener insets
         }
 
         mDataViewModel.device.observe(this) { device ->

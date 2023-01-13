@@ -281,7 +281,7 @@
         app:iconMarginTop="12dp"
         app:labelMarginBottom="12dp"
         app:labelMarginTop="2dp"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toTopOf="@+id/iv_navigation_place_holder">
 
         <id.dionix.navigation.bottom.BottomNavigationItem
             android:layout_width="0dp"
@@ -316,5 +316,13 @@
         android:elevation="20dp"
         android:src="@color/line_color"
         app:layout_constraintTop_toTopOf="@+id/bottomNavigation" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_navigation_place_holder"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:elevation="20dp"
+        android:src="@color/background_secondary"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
