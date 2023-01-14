@@ -22,6 +22,7 @@ import com.codedillo.tinydb.TinyDB
 import id.dionix.kiro.adapter.PagerAdapter
 import id.dionix.kiro.database.AppDatabase
 import id.dionix.kiro.database.DataViewModel
+import id.dionix.kiro.database.SurahViewModel
 import id.dionix.kiro.databinding.ActivityMainBinding
 import id.dionix.kiro.dialog.NoLocationDialog
 import id.dionix.kiro.dialog.PermissionDialog
@@ -29,9 +30,6 @@ import id.dionix.kiro.model.Notification
 import id.dionix.kiro.model.SurahAudio
 import id.dionix.kiro.model.SurahCollection
 import id.dionix.kiro.utility.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,17 +37,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mLocationPermissionLauncher: ActivityResultLauncher<String>
 
     private val mDataViewModel by viewModels<DataViewModel>()
+    private val mSurahViewModel by viewModels<SurahViewModel>()
 
     private var mAudioPreview: SurahAudio? = null
         set(value) {
             field = value
             if (value != null) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val name = ContentResolver.getSurahProperties(value.toSurah()).name
-                    runMain {
-                        mBinding.tvSurahPreviewName.text = name
-                    }
-                }
+                val name = ContentResolver.getSurahProperties(value.toSurah()).name
+                mBinding.tvSurahPreviewName.text = name
 
                 mBinding.ivPlay.imageTintList = ColorStateList.valueOf(
                     getColor(
@@ -112,6 +107,10 @@ class MainActivity : AppCompatActivity() {
 
         mDataViewModel.initialize()
         mDataViewModel.attachToLifecycle(lifecycle)
+
+        mSurahViewModel.allSurah.observe(this) {
+            ContentResolver.updateSurahList(it)
+        }
 
         Config.loadDevice { device ->
             Config.loadApp(applicationContext) { app ->
