@@ -10,64 +10,55 @@ import id.dionix.kiro.R
 import id.dionix.kiro.databinding.ItemScheduleSurahBinding
 import id.dionix.kiro.model.Qiro
 import id.dionix.kiro.utility.ContentResolver
-import id.dionix.kiro.utility.runMain
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class ScheduleSurahAdapter : RecyclerView.Adapter<ScheduleSurahAdapter.ViewHolder>() {
 
     private var mItems = listOf<String>()
 
     fun setQiro(context: Context, qiro: Qiro) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val newItems = buildList {
-                if (qiro.surahList.isEmpty()) {
-                    add(context.getString(R.string.inactive))
-                    return@buildList
-                }
+        val newItems = buildList {
+            if (qiro.surahList.isEmpty()) {
+                add(context.getString(R.string.inactive))
+                return@buildList
+            }
 
-                add(
-                    context.getString(
-                        if (qiro.durationMinutes > 1) R.string.minutes_format else R.string.minute_format,
-                        qiro.durationMinutes
-                    )
+            add(
+                context.getString(
+                    if (qiro.durationMinutes > 1) R.string.minutes_format else R.string.minute_format,
+                    qiro.durationMinutes
                 )
+            )
 
-                qiro.surahList.forEach {
-                    add(ContentResolver.getSurahProperties(it).name)
-                }
+            qiro.surahList.forEach {
+                add(ContentResolver.getSurahProperties(it).name)
             }
-
-            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                override fun getOldListSize(): Int {
-                    return mItems.size
-                }
-
-                override fun getNewListSize(): Int {
-                    return newItems.size
-                }
-
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return mItems[oldItemPosition] == newItems[newItemPosition]
-                }
-
-                override fun areContentsTheSame(
-                    oldItemPosition: Int,
-                    newItemPosition: Int
-                ): Boolean {
-                    return mItems[oldItemPosition] == newItems[newItemPosition]
-                }
-            })
-
-            runMain {
-                mItems = newItems
-                suppressLayout(false)
-                diffResult.dispatchUpdatesTo(this@ScheduleSurahAdapter)
-                suppressLayout(true)
-            }
-
         }
+
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int {
+                return mItems.size
+            }
+
+            override fun getNewListSize(): Int {
+                return newItems.size
+            }
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return mItems[oldItemPosition] == newItems[newItemPosition]
+            }
+
+            override fun areContentsTheSame(
+                oldItemPosition: Int,
+                newItemPosition: Int
+            ): Boolean {
+                return mItems[oldItemPosition] == newItems[newItemPosition]
+            }
+        })
+
+        mItems = newItems
+        suppressLayout(false)
+        diffResult.dispatchUpdatesTo(this@ScheduleSurahAdapter)
+        suppressLayout(true)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

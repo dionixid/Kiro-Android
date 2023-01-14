@@ -9,12 +9,7 @@ import id.dionix.kiro.R
 import id.dionix.kiro.databinding.ItemPrayerTimeActiveBinding
 import id.dionix.kiro.databinding.ItemPrayerTimeBinding
 import id.dionix.kiro.model.*
-import id.dionix.kiro.utility.ContentResolver
-import id.dionix.kiro.utility.runMain
-import id.dionix.kiro.utility.scaleOnClick
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import id.dionix.kiro.utility.*
 
 class PrayerTimeAdapter(
     onForceStop: (surah: SurahProperties) -> Unit = {},
@@ -105,12 +100,7 @@ class PrayerTimeAdapter(
         init {
             mBinding.cvStop.scaleOnClick {
                 if (surahAudio.isPlaying) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val surah = ContentResolver.getSurahProperties(surahAudio.toSurah())
-                        runMain {
-                            mOnForceStop(surah)
-                        }
-                    }
+                    mOnForceStop(ContentResolver.getSurahProperties(surahAudio.toSurah()))
                 }
             }
         }
@@ -133,32 +123,28 @@ class PrayerTimeAdapter(
                 }
 
                 if (value.qiro.surahList.isNotEmpty()) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val name = if (surahAudio.isPlaying) {
-                            ContentResolver.getSurahProperties(surahAudio.toSurah()).name
-                        } else {
-                            val firstSurahName =
-                                ContentResolver.getSurahProperties(value.qiro.surahList[0]).name
-                            when (val surahSize = value.qiro.surahList.size) {
-                                1 -> firstSurahName
-                                2 -> {
-                                    "$firstSurahName & ${ContentResolver.getSurahProperties(value.qiro.surahList[1]).name}"
-                                }
-                                else -> {
-                                    "$firstSurahName ${
-                                        context.getString(
-                                            R.string.and_more_format,
-                                            surahSize - 1
-                                        )
-                                    }"
-                                }
+                    val name = if (surahAudio.isPlaying) {
+                        ContentResolver.getSurahProperties(surahAudio.toSurah()).name
+                    } else {
+                        val firstSurahName =
+                            ContentResolver.getSurahProperties(value.qiro.surahList[0]).name
+                        when (val surahSize = value.qiro.surahList.size) {
+                            1 -> firstSurahName
+                            2 -> {
+                                "$firstSurahName & ${ContentResolver.getSurahProperties(value.qiro.surahList[1]).name}"
+                            }
+                            else -> {
+                                "$firstSurahName ${
+                                    context.getString(
+                                        R.string.and_more_format,
+                                        surahSize - 1
+                                    )
+                                }"
                             }
                         }
-
-                        runMain {
-                            mBinding.tvSurah.text = name
-                        }
                     }
+
+                    mBinding.tvSurah.text = name
                 } else {
                     mBinding.tvSurah.text = context.getString(R.string.inactive)
                 }
@@ -215,7 +201,7 @@ class PrayerTimeAdapter(
         private val context: Context get() = mBinding.root.context
 
         init {
-            mBinding.root.scaleOnClick {
+            mBinding.root.setOnClickListener {
                 mOnItemSelected(mGroup.toPrayerTimeOffset())
             }
         }
@@ -266,29 +252,29 @@ class PrayerTimeAdapter(
                     visibility = if (value.qiro.surahList.isEmpty()) View.GONE else View.VISIBLE
 
                     if (value.qiro.surahList.isNotEmpty()) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val firstSurahName =
-                                ContentResolver.getSurahProperties(value.qiro.surahList[0]).name
+                        val firstSurahName =
+                            ContentResolver.getSurahProperties(value.qiro.surahList[0]).name
 
-                            val name = when (val surahSize = value.qiro.surahList.size) {
-                                1 -> firstSurahName
-                                2 -> {
-                                    "$firstSurahName & ${ContentResolver.getSurahProperties(value.qiro.surahList[1]).name}"
-                                }
-                                else -> {
-                                    "$firstSurahName ${
-                                        context.getString(
-                                            R.string.and_more_format,
-                                            surahSize - 1
-                                        )
-                                    }"
-                                }
+                        val name = when (val surahSize = value.qiro.surahList.size) {
+                            1 -> firstSurahName
+                            2 -> {
+                                "$firstSurahName & ${
+                                    ContentResolver.getSurahProperties(
+                                        value.qiro.surahList[1]
+                                    ).name
+                                }"
                             }
-
-                            runMain {
-                                text = name
+                            else -> {
+                                "$firstSurahName ${
+                                    context.getString(
+                                        R.string.and_more_format,
+                                        surahSize - 1
+                                    )
+                                }"
                             }
                         }
+
+                        text = name
                     } else {
                         text = context.getString(R.string.inactive)
                     }

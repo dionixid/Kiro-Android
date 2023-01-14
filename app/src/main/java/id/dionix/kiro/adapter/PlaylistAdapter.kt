@@ -21,9 +21,6 @@ import id.dionix.kiro.model.Surah
 import id.dionix.kiro.model.SurahAudio
 import id.dionix.kiro.model.SurahProperties
 import id.dionix.kiro.utility.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -58,55 +55,51 @@ class PlaylistAdapter(
     fun setQiro(qiro: Qiro) {
         mTotalDuration = qiro.durationMinutes * 60
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val newItems = buildList {
-                qiro.surahList.forEach {
-                    add(ContentResolver.getSurahProperties(it))
-                }
+        val newItems = buildList {
+            qiro.surahList.forEach {
+                add(ContentResolver.getSurahProperties(it))
+            }
 
-                add(
-                    Action("Add") {
-                        if (!mIsOpenDialog) {
-                            mIsOpenDialog = true
-                            AudioPickerDialog(
-                                onItemSelected = {
-                                    addSurah(it)
-                                },
-                                onDismiss = {
-                                    mIsOpenDialog = false
-                                }
-                            ).show(mSupportFragmentManager, "dialog_audio_picker")
-                        }
+            add(
+                Action("Add") {
+                    if (!mIsOpenDialog) {
+                        mIsOpenDialog = true
+                        AudioPickerDialog(
+                            onItemSelected = {
+                                addSurah(it)
+                            },
+                            onDismiss = {
+                                mIsOpenDialog = false
+                            }
+                        ).show(mSupportFragmentManager, "dialog_audio_picker")
                     }
-                )
-            }
-
-            val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                override fun getOldListSize(): Int {
-                    return mItems.size
                 }
-
-                override fun getNewListSize(): Int {
-                    return newItems.size
-                }
-
-                override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                    return mItems[oldItemPosition] == newItems[newItemPosition]
-                }
-
-                override fun areContentsTheSame(
-                    oldItemPosition: Int,
-                    newItemPosition: Int
-                ): Boolean {
-                    return mItems[oldItemPosition] == newItems[newItemPosition]
-                }
-            })
-
-            runMain {
-                mItems = newItems.toMutableList()
-                diffResult.dispatchUpdatesTo(this@PlaylistAdapter)
-            }
+            )
         }
+
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int {
+                return mItems.size
+            }
+
+            override fun getNewListSize(): Int {
+                return newItems.size
+            }
+
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return mItems[oldItemPosition] == newItems[newItemPosition]
+            }
+
+            override fun areContentsTheSame(
+                oldItemPosition: Int,
+                newItemPosition: Int
+            ): Boolean {
+                return mItems[oldItemPosition] == newItems[newItemPosition]
+            }
+        })
+
+        mItems = newItems.toMutableList()
+        diffResult.dispatchUpdatesTo(this@PlaylistAdapter)
     }
 
     fun setTotalDuration(duration: Int) {
@@ -114,10 +107,10 @@ class PlaylistAdapter(
         updateDurationForActiveItems()
     }
 
-    private fun addSurah(surahProps: SurahProperties) {
+    private fun addSurah(surahPropsList: List<SurahProperties>) {
         val position = mItems.lastIndex
-        mItems.add(position, surahProps)
-        notifyItemInserted(position)
+        mItems.addAll(position, surahPropsList)
+        notifyItemRangeInserted(position, surahPropsList.size)
         mOnChange(mItems.filterIsInstance<SurahProperties>().map { it.toSurah() })
     }
 
