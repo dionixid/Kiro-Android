@@ -44,7 +44,7 @@ class ConfirmationDialog(
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        mOnDismiss
+        mOnDismiss()
     }
 
     override fun onCreateView(
