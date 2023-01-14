@@ -95,4 +95,5 @@
     <string name="playlist_stopped_successfully">Daftar putar telah dihentikan</string>
     <string name="play">Putar</string>
     <string name="and_more_format">dan %1$d lainnya</string>
+    <string name="item_selected_format">%1$d file dipilih</string>
 </resources>
