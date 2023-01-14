@@ -275,7 +275,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
                         val newDate = it.getSetting(Setting.Type.Date) ?: return@forEach
 
                         mMutableTime.value = newTime.value.toInt().secondsToTime()
-                        mMutableDate.value = newDate.value.toString().parseDate("dd-MM-yyyy")
+                        mMutableDate.value = newDate.value.toString().parseDate("dd-MM-yyyy") ?: LocalDate.now()
                         return@runMain
                     }
                 }
@@ -305,7 +305,7 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
                     val newDate = it.getSetting(Setting.Type.Date) ?: return@forEach
 
                     mMutableTime.value = newTime.value.toInt().secondsToTime()
-                    mMutableDate.value = newDate.value.toString().parseDate("dd-MM-yyyy")
+                    mMutableDate.value = newDate.value.toString().parseDate("dd-MM-yyyy") ?: LocalDate.now()
                     return@runMain
                 }
             }
