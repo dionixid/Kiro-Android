@@ -127,6 +127,24 @@ class DataViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun addSurahSearchResults(surahPropsList: List<SurahProperties>) {
+        var list = mMutableLastSurahSearch.value?.toMutableList() ?: mutableListOf()
+        list.removeIf { surah -> surahPropsList.indexOfFirst { it.id == surah.id } != -1 }
+        list.addAll(0, surahPropsList.reversed())
+
+        if (list.size > 10) {
+            list = list.subList(0, 10)
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            TinyDB.getInstance().putListObject(KEY_SURAH_SEARCH, list)
+        }
+
+        runMain {
+            mMutableLastSurahSearch.value = list
+        }
+    }
+
     fun join(password: String) {
         mRepository.join(password)
     }
