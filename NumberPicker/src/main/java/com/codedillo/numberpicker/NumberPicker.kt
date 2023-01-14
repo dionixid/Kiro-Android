@@ -205,7 +205,7 @@ class NumberPicker(context: Context, attrs: AttributeSet?) : LinearLayout(contex
                             child.alpha = 1f - (da - d1) / (d2 - d1)
 
                             val targetColor = Color(numberSet.value.appearance.colorFocus)
-                            val diffColor = Color(-1) - targetColor
+                            val diffColor = Color(numberSet.value.appearance.color) - targetColor
                             val calculatedColor = (targetColor + diffColor * scaleMultiplier).argb
                             (child as? LinearLayout)?.let {
                                 (it.getChildAt(0) as? TextView)?.setTextColor(calculatedColor)
