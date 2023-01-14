@@ -10,6 +10,7 @@ import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatDialog
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import com.codedillo.rttp.model.Value
@@ -133,6 +134,14 @@ class LocationDialog(
             }
 
             return@setOnApplyWindowInsetsListener insets
+        }
+
+        mBinding.root.apply {
+            ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                val navBar = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+                setPadding(0, 0, 0, navBar.bottom)
+                return@setOnApplyWindowInsetsListener insets
+            }
         }
 
         mBinding.cvBack.apply {

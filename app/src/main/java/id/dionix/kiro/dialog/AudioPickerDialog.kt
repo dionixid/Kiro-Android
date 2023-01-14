@@ -125,14 +125,6 @@ class AudioPickerDialog(
             layoutParams = params
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(mBinding.root) { _, insets ->
-            if (insets.getInsets(WindowInsetsCompat.Type.ime()).bottom == 0) {
-                mBinding.etSearch.clearFocus()
-            }
-            return@setOnApplyWindowInsetsListener insets
-        }
-
-        fun openAudioPreviewDialog(surahProps: SurahProperties) {
         val searchAdapter = SearchResultAdapter { surahProps ->
             if (!mIsOpenDialog) {
                 mIsOpenDialog = true
@@ -247,6 +239,21 @@ class AudioPickerDialog(
                     }
                 }
             })
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.root) { _, insets ->
+            val navBar = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+
+            if (ime.bottom == 0) {
+                mBinding.etSearch.clearFocus()
+            }
+
+            if (navBarHeight != navBar.bottom) {
+                navBarHeight = navBar.bottom
+                mBinding.rvAudioPicker.invalidateItemDecorations()
+            }
+            return@setOnApplyWindowInsetsListener insets
         }
 
         mBinding.etSearch.apply {

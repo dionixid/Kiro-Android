@@ -11,6 +11,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatDialog
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.codedillo.numberpicker.NumberPicker
 import com.codedillo.rttp.model.Value
@@ -110,6 +111,14 @@ class DateTimeDialog(
                     }
                 }
             })
+        }
+
+        mBinding.root.apply {
+            ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                val navBar = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+                setPadding(0, 0, 0, navBar.bottom)
+                return@setOnApplyWindowInsetsListener insets
+            }
         }
 
         mBinding.llHeader.apply {

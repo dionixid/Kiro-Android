@@ -201,11 +201,17 @@ class ValueDialog(
             }
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(mBinding.root) { _, insets ->
-            if (insets.getInsets(WindowInsetsCompat.Type.ime()).bottom == 0) {
-                mBinding.etValue.clearFocus()
+        mBinding.root.apply {
+            ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                val navBar = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+                val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+                setPadding(0, 0, 0, navBar.bottom)
+
+                if (ime.bottom == 0) {
+                    mBinding.etValue.clearFocus()
+                }
+                return@setOnApplyWindowInsetsListener insets
             }
-            return@setOnApplyWindowInsetsListener insets
         }
 
         mBinding.cvSave.scaleOnClick {

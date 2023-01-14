@@ -12,6 +12,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatDialog
 import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -123,6 +124,14 @@ class ScheduleDialog(
                 topMargin = insets.top
             }
             layoutParams = params
+        }
+
+        mBinding.root.apply {
+            ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
+                val navBar = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+                setPadding(0, 0, 0, navBar.bottom)
+                return@setOnApplyWindowInsetsListener insets
+            }
         }
 
         val playlistAdapter = PlaylistAdapter { surahList ->
