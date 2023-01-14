@@ -127,6 +127,10 @@ class MainActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(mBinding.root) { _, insets ->
             val bottomBar = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
             mBinding.ivNavigationPlaceHolder.apply {
+                if (layoutParams.height == bottomBar.bottom) {
+                    return@apply
+                }
+
                 val params = layoutParams.apply {
                     height = bottomBar.bottom
                 }
