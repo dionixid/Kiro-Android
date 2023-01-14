@@ -52,10 +52,10 @@ data class Qiro(
 
         fun getMaximumDuration(name: Prayer.Name): Int {
             return when (name) {
-                Prayer.Name.Fajr -> 120
-                Prayer.Name.Dhuhr -> 120
-                Prayer.Name.Asr -> 60
-                Prayer.Name.Maghrib -> 60
+                Prayer.Name.Fajr -> 360
+                Prayer.Name.Dhuhr -> 360
+                Prayer.Name.Asr -> 120
+                Prayer.Name.Maghrib -> 90
                 Prayer.Name.Isha -> 30
             }
         }
