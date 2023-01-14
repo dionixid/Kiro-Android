@@ -29,7 +29,7 @@ import id.dionix.kiro.model.SurahProperties
 import id.dionix.kiro.utility.*
 
 class AudioPickerDialog(
-    onItemSelected: (surahProps: SurahProperties) -> Unit = {},
+    onItemSelected: (surahPropsList: List<SurahProperties>) -> Unit = {},
     onDismiss: () -> Unit = {}
 ) : AppCompatDialogFragment() {
 
@@ -133,6 +133,7 @@ class AudioPickerDialog(
         }
 
         fun openAudioPreviewDialog(surahProps: SurahProperties) {
+        val searchAdapter = SearchResultAdapter { surahProps ->
             if (!mIsOpenDialog) {
                 mIsOpenDialog = true
                 AudioPreviewDialog(
@@ -145,7 +146,7 @@ class AudioPickerDialog(
                         isPlaying = false
                     ),
                     onApply = { audio ->
-                        mOnItemSelected(surahProps.copy(volume = audio.volume))
+                        mOnItemSelected(listOf(surahProps.copy(volume = audio.volume)))
                         mDataViewModel.addSurahSearchResult(surahProps)
                         dismiss()
                     },
@@ -155,8 +156,6 @@ class AudioPickerDialog(
                 ).show(requireActivity().supportFragmentManager, "dialog_audio_preview")
             }
         }
-
-        val searchAdapter = SearchResultAdapter(::openAudioPreviewDialog)
 
         mDataViewModel.lastSurahSearch.observe(viewLifecycleOwner) {
             searchAdapter.setSurahList(it)
@@ -189,7 +188,16 @@ class AudioPickerDialog(
             }
         }
 
-        val audioAdapter = AudioPickerAdapter(::openAudioPreviewDialog)
+        val audioAdapter = AudioPickerAdapter(requireActivity().supportFragmentManager) {
+            mBinding.tvSelectedCount.text =
+                if (it.isEmpty()) "" else getString(R.string.item_selected_format, it.size)
+        }
+
+        mBinding.cvSelect.scaleOnClick {
+            mOnItemSelected(audioAdapter.selectedItems)
+            mDataViewModel.addSurahSearchResults(audioAdapter.selectedItems)
+            dismiss()
+        }
 
         mSurahViewModel.allSurah.observe(viewLifecycleOwner) {
             mSurahViewModel.filter("")
@@ -198,6 +206,8 @@ class AudioPickerDialog(
         mSurahViewModel.searchResults.observe(viewLifecycleOwner) {
             audioAdapter.setSurahList(it)
         }
+
+        var navBarHeight = 0
 
         mBinding.rvAudioPicker.apply {
             setHasFixedSize(true)
@@ -218,7 +228,7 @@ class AudioPickerDialog(
                     state: RecyclerView.State
                 ) {
                     if (parent.getChildAdapterPosition(view) == state.itemCount - 1) {
-                        outRect.bottom = 20.dip
+                        outRect.bottom = 20.dip + navBarHeight
                     } else {
                         outRect.bottom = 0
                     }
