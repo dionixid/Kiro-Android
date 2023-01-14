@@ -2,12 +2,17 @@ package id.dionix.kiro.utility
 
 import android.content.Context
 import id.dionix.kiro.R
-import id.dionix.kiro.database.AppDatabase
+import id.dionix.kiro.database.SurahViewModel
 import id.dionix.kiro.model.Surah
 import id.dionix.kiro.model.SurahProperties
 import java.time.DayOfWeek
 
 object ContentResolver {
+    private var mAllSurah: List<SurahProperties> = listOf()
+
+    fun updateSurahList(allSurah: List<SurahProperties>) {
+        mAllSurah = allSurah
+    }
 
     fun getString(context: Context, value: String): String {
         return when (value.lowercase()) {
@@ -31,7 +36,7 @@ object ContentResolver {
 
     fun getDayName(context: Context, dayOfWeek: DayOfWeek): String {
         return context.getString(
-            when(dayOfWeek) {
+            when (dayOfWeek) {
                 DayOfWeek.MONDAY -> R.string.monday
                 DayOfWeek.TUESDAY -> R.string.tuesday
                 DayOfWeek.WEDNESDAY -> R.string.wednesday
@@ -43,8 +48,10 @@ object ContentResolver {
         )
     }
 
-    suspend fun getSurahProperties(surah: Surah) : SurahProperties {
-        return AppDatabase.getInstance().surahDao.getSurahProperties(surah.id)?.apply {
+    fun getSurahProperties(surah: Surah): SurahProperties {
+        return mAllSurah.find {
+            it.id == surah.id
+        }?.apply {
             volume = surah.volume
         } ?: SurahProperties(name = "Untitled", id = surah.id, volume = surah.volume)
     }
