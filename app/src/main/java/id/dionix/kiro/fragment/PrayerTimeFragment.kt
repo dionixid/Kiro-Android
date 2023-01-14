@@ -18,11 +18,9 @@ import id.dionix.kiro.dialog.ConfirmationDialog
 import id.dionix.kiro.dialog.DeviceDialog
 import id.dionix.kiro.dialog.PrayerTimeDialog
 import id.dionix.kiro.model.Notification
-import id.dionix.kiro.utility.dip
-import id.dionix.kiro.utility.format
-import id.dionix.kiro.utility.makeTimer
-import id.dionix.kiro.utility.scaleOnClick
+import id.dionix.kiro.utility.*
 import java.time.LocalDate
+import java.time.LocalTime
 
 class PrayerTimeFragment : Fragment() {
 
@@ -40,16 +38,6 @@ class PrayerTimeFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         mBinding = FragmentPrayerTimeBinding.inflate(inflater, container, false)
-
-        mDataViewModel.time.observe(viewLifecycleOwner) {
-            mBinding.tvTime.text = it.format("HH:mm")
-        }
-
-        mDataViewModel.date.observe(viewLifecycleOwner) {
-            mBinding.tvDate.text = it.format("dd")
-            mBinding.tvMonth.text = it.format("MMMM")
-            mBinding.tvYear.text = it.format("yyyy")
-        }
 
         mBinding.cvDevice.scaleOnClick {
             if (!mIsOpenDialog) {
@@ -119,8 +107,29 @@ class PrayerTimeFragment : Fragment() {
             prayerTimeAdapter.surahAudio = it
         }
 
+        fun updateQiroGroup() {
+            val ishaTime = mDataViewModel.prayerGroup.value?.isha?.time?.toSecondOfDay() ?: 86400
+            val time = mDataViewModel.time.value ?: LocalTime.now()
+            val date = mDataViewModel.date.value ?: LocalDate.now()
+
+            mDataViewModel.qiroGroups.value?.forEach { group ->
+                if (time.toSecondOfDay() >= ishaTime - (ishaTime % 60)) {
+                    if (date.plusDays(1).dayOfWeek == group.dayOfWeek) {
+                        prayerTimeAdapter.setQiroGroup(group)
+                        return
+                    }
+                } else {
+                    if (date.dayOfWeek == group.dayOfWeek) {
+                        prayerTimeAdapter.setQiroGroup(group)
+                        return
+                    }
+                }
+            }
+        }
+
         mDataViewModel.prayerGroup.observe(viewLifecycleOwner) {
             prayerTimeAdapter.setPrayerGroup(it)
+            updateQiroGroup()
 
             if (mIsWaitingResponse) {
                 mIsWaitingResponse = false
@@ -133,10 +142,12 @@ class PrayerTimeFragment : Fragment() {
 
         mDataViewModel.prayerOngoing.observe(viewLifecycleOwner) {
             prayerTimeAdapter.setOngoingPrayer(it)
+            updateQiroGroup()
         }
 
         mDataViewModel.qiroOngoing.observe(viewLifecycleOwner) {
             prayerTimeAdapter.setOngoingQiro(it)
+            updateQiroGroup()
         }
 
         mDataViewModel.surahOngoing.observe(viewLifecycleOwner) {
@@ -150,12 +161,19 @@ class PrayerTimeFragment : Fragment() {
         }
 
         mDataViewModel.qiroGroups.observe(viewLifecycleOwner) {
-            it.forEach { group ->
-                if (LocalDate.now().dayOfWeek == group.dayOfWeek) {
-                    prayerTimeAdapter.setQiroGroup(group)
-                    return@observe
-                }
-            }
+            updateQiroGroup()
+        }
+
+        mDataViewModel.time.observe(viewLifecycleOwner) {
+            mBinding.tvTime.text = it.format("HH:mm")
+            updateQiroGroup()
+        }
+
+        mDataViewModel.date.observe(viewLifecycleOwner) {
+            mBinding.tvDate.text = it.format("dd")
+            mBinding.tvMonth.text = it.format("MMMM")
+            mBinding.tvYear.text = it.format("yyyy")
+            updateQiroGroup()
         }
 
         mDataViewModel.device.observe(viewLifecycleOwner) {
